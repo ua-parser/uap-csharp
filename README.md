@@ -21,7 +21,7 @@ Usage:
   // get a parser with the embedded regex patterns, methods exist for creating with provided regex patterns 
   var uaParser = Parser.GetDefault();
 
-  Client c = uaParser.Parse(uaString);
+  ClientInfo c = uaParser.Parse(uaString);
 
   Console.WriteLine(c.UserAgent.Family); // => "Mobile Safari"
   Console.WriteLine(c.UserAgent.Major);  // => "5"
@@ -37,7 +37,7 @@ Usage:
 Authors:
 -------
 
-  * Søren Enemærke [@sorenenemaerke](https://twitter.com/sorenenemaerke) / [github](https://https://github.com/enemaerke)
-  * Atif Aziz [@raboof](https://twitter.com/raboof) / [github](https://https://github.com/atifaziz)
+  * Søren Enemærke [@sorenenemaerke](https://twitter.com/sorenenemaerke) / [github](https://github.com/enemaerke)
+  * Atif Aziz [@raboof](https://twitter.com/raboof) / [github](https://github.com/atifaziz)
 
   
