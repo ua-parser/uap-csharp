@@ -9,6 +9,11 @@ Build and Run Tests:
 
     .\build.bat
 
+Install through Nuget:
+------
+
+    PM> Install-Package UAParser
+
 Usage:
 --------
 ```csharp
