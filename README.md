@@ -9,7 +9,7 @@ Build and Run Tests:
 
     .\build.bat
 
-Install through Nuget:
+Or install through Nuget:
 ------
 
     PM> Install-Package UAParser
