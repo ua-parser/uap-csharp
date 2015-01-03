@@ -55,9 +55,7 @@
     <Compile Include="UAParser.cs" />
   </ItemGroup>
   <ItemGroup>
-    <EmbeddedResource Include="..\..\regexes.yaml">
-      <Link>regexes.yaml</Link>
-    </EmbeddedResource>
+    <EmbeddedResource Include="regexes.yaml" />
     <None Include="UAParser.nuspec" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

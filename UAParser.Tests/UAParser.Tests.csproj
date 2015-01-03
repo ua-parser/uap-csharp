@@ -87,12 +87,10 @@
     <EmbeddedResource Include="..\..\test_resources\test_user_agent_parser_os.yaml">
       <Link>TestResources\test_user_agent_parser_os.yaml</Link>
     </EmbeddedResource>
-    <EmbeddedResource Include="..\..\regexes.yaml">
-      <Link>Regexes\regexes.yaml</Link>
-    </EmbeddedResource>
     <None Include="packages.config">
       <SubType>Designer</SubType>
     </None>
+    <EmbeddedResource Include="Regexes\regexes.yaml" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\UAParser\UAParser.csproj">
