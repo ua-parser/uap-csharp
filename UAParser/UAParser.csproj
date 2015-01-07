@@ -55,7 +55,7 @@
     <Compile Include="UAParser.cs" />
   </ItemGroup>
   <ItemGroup>
-    <EmbeddedResource Include="..\..\regexes.yaml">
+    <EmbeddedResource Include="..\uap-core\regexes.yaml">
       <Link>regexes.yaml</Link>
     </EmbeddedResource>
     <None Include="UAParser.nuspec" />
