@@ -38,13 +38,13 @@ namespace UAParser.Tests
     [Fact]
     public void can_run_user_agent_parser_tests()
     {
-      RunTests("UAParser.Tests.TestResources.test_user_agent_parser.yaml", UserAgentYamlTestCase.ReadFromMap);
+      RunTests("UAParser.Tests.TestResources.test_ua.yaml", UserAgentYamlTestCase.ReadFromMap);
     }
 
     [Fact]
     public void can_run_user_agent_parser_os_tests()
     {
-      RunTests("UAParser.Tests.TestResources.test_user_agent_parser_os.yaml", OSYamlTestCase.ReadFromMap);
+      RunTests("UAParser.Tests.TestResources.test_os.yaml", OSYamlTestCase.ReadFromMap);
     }
 
     public void RunTests<TTestCase>(
