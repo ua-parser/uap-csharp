@@ -45,7 +45,7 @@ Usage:
 Authors:
 -------
 
-  * Søren Enemærke [@sorenenemaerke](https://twitter.com/sorenenemaerke) / [github](https://https://github.com/enemaerke)
-  * Atif Aziz [@raboof](https://twitter.com/raboof) / [github](https://https://github.com/atifaziz)
+  * Søren Enemærke [@sorenenemaerke](https://twitter.com/sorenenemaerke) / [github](https://github.com/enemaerke)
+  * Atif Aziz [@raboof](https://twitter.com/raboof) / [github](https://github.com/atifaziz)
 
   
