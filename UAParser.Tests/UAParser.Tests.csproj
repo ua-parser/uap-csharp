@@ -66,28 +66,28 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
-    <EmbeddedResource Include="..\uap-core\regexes.yaml">
+    <EmbeddedResource Include="..\..\uap-core\regexes.yaml">
       <Link>Regexes\regexes.yaml</Link>
     </EmbeddedResource>
-    <EmbeddedResource Include="..\uap-core\tests\test_device.yaml">
+    <EmbeddedResource Include="..\..\uap-core\tests\test_device.yaml">
       <Link>TestResources\test_device.yaml</Link>
     </EmbeddedResource>
-    <EmbeddedResource Include="..\uap-core\tests\test_os.yaml">
+    <EmbeddedResource Include="..\..\uap-core\tests\test_os.yaml">
       <Link>TestResources\test_os.yaml</Link>
     </EmbeddedResource>
-    <EmbeddedResource Include="..\uap-core\tests\test_ua.yaml">
+    <EmbeddedResource Include="..\..\uap-core\tests\test_ua.yaml">
       <Link>TestResources\test_ua.yaml</Link>
     </EmbeddedResource>
-    <EmbeddedResource Include="..\uap-core\test_resources\additional_os_tests.yaml">
+    <EmbeddedResource Include="..\..\uap-core\test_resources\additional_os_tests.yaml">
       <Link>TestResources\additional_os_tests.yaml</Link>
     </EmbeddedResource>
-    <EmbeddedResource Include="..\uap-core\test_resources\firefox_user_agent_strings.yaml">
+    <EmbeddedResource Include="..\..\uap-core\test_resources\firefox_user_agent_strings.yaml">
       <Link>TestResources\firefox_user_agent_strings.yaml</Link>
     </EmbeddedResource>
-    <EmbeddedResource Include="..\uap-core\test_resources\pgts_browser_list-orig.yaml">
+    <EmbeddedResource Include="..\..\uap-core\test_resources\pgts_browser_list-orig.yaml">
       <Link>TestResources\pgts_browser_list-orig.yaml</Link>
     </EmbeddedResource>
-    <EmbeddedResource Include="..\uap-core\test_resources\pgts_browser_list.yaml">
+    <EmbeddedResource Include="..\..\uap-core\test_resources\pgts_browser_list.yaml">
       <Link>TestResources\pgts_browser_list.yaml</Link>
     </EmbeddedResource>
     <None Include="packages.config">

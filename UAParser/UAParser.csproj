@@ -30,7 +30,7 @@
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugType>pdbonly</DebugType>
     <Optimize>true</Optimize>
-    <OutputPath>bin\Release\</OutputPath>
+    <OutputPath>..\..\..\Project\ThirdParty\</OutputPath>
     <DefineConstants>TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
@@ -55,7 +55,7 @@
     <Compile Include="UAParser.cs" />
   </ItemGroup>
   <ItemGroup>
-    <EmbeddedResource Include="..\uap-core\regexes.yaml">
+    <EmbeddedResource Include="..\..\uap-core\regexes.yaml">
       <Link>regexes.yaml</Link>
     </EmbeddedResource>
     <None Include="UAParser.nuspec" />
