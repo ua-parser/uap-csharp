@@ -17,6 +17,8 @@
 //
 #endregion
 
+using System.Security.Policy;
+
 namespace UAParser
 {
     #region Imports
@@ -31,16 +33,23 @@ namespace UAParser
 
     public sealed class Device
     {
-        public Device(string family, bool isSpider)
+        public Device(string family, string brand, string model)
         {
-            Family = family;
-            IsSpider = isSpider;
+            Family = family.Trim();
+            if (brand != null)
+                Brand = brand.Trim();
+            if (model != null)
+                Model = model.Trim();
         }
 
+        public string Brand { get; private set; }
         public string Family { get; private set; }
-        public bool IsSpider { get; private set; }
+        public string Model { get; private set; }
 
-        public override string ToString() { return Family; }
+        public override string ToString()
+        {
+            return Family;
+        }
     }
 
     // ReSharper disable once InconsistentNaming
@@ -127,11 +136,11 @@ namespace UAParser
         Parser(MinimalYamlParser yamlParser)
         {
             const string other = "Other";
-            var defaultDevice = new Device(other, isSpider: false);
+            var defaultDevice = new Device(other, "", "");
 
             _userAgentParser = CreateParser(Read(yamlParser.ReadMapping("user_agent_parsers"), Config.UserAgent), new UserAgent(other, null, null, null));
             _osParser = CreateParser(Read(yamlParser.ReadMapping("os_parsers"), Config.OS), new OS(other, null, null, null, null));
-            _deviceParser = CreateParser(Read(yamlParser.ReadMapping("device_parsers"), Config.Device), defaultDevice.Family, f => defaultDevice.Family == f ? defaultDevice : new Device(f, "Spider".Equals(f, StringComparison.InvariantCultureIgnoreCase)));
+            _deviceParser = CreateParser(Read(yamlParser.ReadMapping("device_parsers"), Config.Device), defaultDevice);
         }
 
         static IEnumerable<T> Read<T>(IEnumerable<Dictionary<string, string>> entries, Func<Func<string, string>, T> selector)
@@ -182,7 +191,9 @@ namespace UAParser
                 var os = indexer("os_replacement");
                 var v1 = indexer("os_v1_replacement");
                 var v2 = indexer("os_v2_replacement");
-                return Parsers.OS(regex, os, v1, v2);
+                var v3 = indexer("os_v3_replacement");
+                var v4 = indexer("os_v4_replacement");
+                return Parsers.OS(regex, os, v1, v2, v3, v4);
             }
 
             public static Func<string, UserAgent> UserAgent(Func<string, string> indexer)
@@ -191,15 +202,20 @@ namespace UAParser
                 var family = indexer("family_replacement");
                 var v1 = indexer("v1_replacement");
                 var v2 = indexer("v2_replacement");
-                return Parsers.UserAgent(regex, family, v1, v2);
+                var v3 = indexer("v3_replacement");
+                return Parsers.UserAgent(regex, family, v1, v2, v3);
             }
 
-            public static Func<string, string> Device(Func<string, string> indexer)
+            public static Func<string, Device> Device(Func<string, string> indexer)
             {
-                return Parsers.Device(Regex(indexer, "Device"), indexer("device_replacement"));
+                var regex = Regex(indexer, "Device", indexer("regex_flag"));
+                var device = indexer("device_replacement");
+                var brand = indexer("brand_replacement");
+                var model = indexer("model_replacement");
+                return Parsers.Device(regex, device, brand, model);
             }
 
-            static Regex Regex(Func<string, string> indexer, string key)
+            static Regex Regex(Func<string, string> indexer, string key, string regexFlag = null)
             {
                 var pattern = indexer("regex");
                 if (pattern == null)
@@ -215,35 +231,40 @@ namespace UAParser
                 // TODO: potentially allow parser to specify e.g. to use 
                 // compiled regular expressions which are faster but increase 
                 // startup time
-                
-                return new Regex(pattern);
+                 RegexOptions options = RegexOptions.None;
+                if ("i".Equals(regexFlag))
+                    options |= RegexOptions.IgnoreCase;
+                return new Regex(pattern, options);
             }
         }
         
         static class Parsers
         {
             // ReSharper disable once InconsistentNaming
-            public static Func<string, OS> OS(Regex regex, string osReplacement, string v1Replacement, string v2Replacement)
+            public static Func<string, OS> OS(Regex regex, string osReplacement, string v1Replacement, string v2Replacement, string v3Replacement, string v4Replacement)
             {
                 return Create(regex, from family in Replace(osReplacement, "$1")
-                                     from v1 in Replace(v1Replacement)
-                                     from v2 in Replace(v2Replacement)
-                                     from v3 in Select(v => v)
-                                     from v4 in Select(v => v)
+                                     from v1 in Replace(v1Replacement, "$2")
+                                     from v2 in Replace(v2Replacement, "$3")
+                                     from v3 in Replace(v3Replacement, "$4")
+                                     from v4 in Replace(v4Replacement, "$5")
                                      select new OS(family, v1, v2, v3, v4));
             }
 
-            public static Func<string, string> Device(Regex regex, string familyReplacement)
+            public static Func<string, Device> Device(Regex regex, string familyReplacement, string brandReplacement, string modelReplacement)
             {
-                return Create(regex, Replace(familyReplacement, "$1"));
+                return Create(regex, from family in ReplaceAll(familyReplacement)
+                                     from brand in ReplaceAll(brandReplacement)
+                                     from model in ReplaceAll(modelReplacement)
+                                     select new Device(family, brand, model));
             }
 
-            public static Func<string, UserAgent> UserAgent(Regex regex, string familyReplacement, string majorReplacement, string minorReplacement)
+            public static Func<string, UserAgent> UserAgent(Regex regex, string familyReplacement, string majorReplacement, string minorReplacement, string patchReplacement)
             {
                 return Create(regex, from family in Replace(familyReplacement, "$1")
-                                     from v1 in Replace(majorReplacement)
-                                     from v2 in Replace(minorReplacement)
-                                     from v3 in Select()
+                                     from v1 in Replace(majorReplacement, "$2")
+                                     from v2 in Replace(minorReplacement, "$3")
+                                     from v3 in Replace(patchReplacement, "$4")
                                      select new UserAgent(family, v1, v2, v3));
             }
 
@@ -258,6 +279,51 @@ namespace UAParser
                 return replacement != null && replacement.Contains(token)
                      ? Select(s => s != null ? replacement.ReplaceFirstOccurence(token, s) : replacement)
                      : Replace(replacement);
+            }
+
+            private static readonly string[] AllTokens = new string[]
+            {
+                "$1","$2","$3","$4","$5","$6","$7","$8","$91",
+            };
+            
+            static Func<Match, IEnumerator<int>, string> ReplaceAll(
+                string replacement)
+            {
+                if (replacement == null)
+                    return Select();
+
+                Func<string, string, string, string> replaceFunction = (replacementString, matchedGroup, token) =>
+                {
+                    return matchedGroup != null
+                        ? replacementString.ReplaceFirstOccurence(token, matchedGroup)
+                        : replacementString;
+                };
+
+                return (m, num) =>
+                {
+                    var finalString = replacement;
+                    if (finalString.Contains("$"))
+                    {
+                        var groups = m.Groups;
+                        for (int i = 0; i < AllTokens.Length; i++)
+                        {
+                            int tokenNumber = i + 1;
+                            string token = AllTokens[i];
+                            Group group;
+                            if (finalString.Contains(token))
+                            {
+                                var replacementText = string.Empty;
+                                if (tokenNumber <= groups.Count && (group = groups[tokenNumber]).Success)
+                                    replacementText = group.Value;
+
+                                finalString = replaceFunction(finalString, replacementText, token);
+                            }
+                            if (!finalString.Contains("$"))
+                                break;
+                        }
+                    }
+                    return finalString;
+                };
             }
 
             static Func<Match, IEnumerator<int>, string> Select() { return Select(v => v); }
@@ -299,7 +365,13 @@ namespace UAParser
             Func<T1, Func<Match, IEnumerator<int>, T2>> continuation,
             Func<T1, T2, TResult> projection)
         {
-            return (m, num) => { T1 f; return projection(f = binder(m, num), continuation(f)(m, num)); };
+            return (m, num) =>
+            {
+                T1 bound = binder(m, num);
+                T2 continued = continuation(bound)(m, num);
+                TResult projected = projection(bound, continued);
+                return projected;
+            };
         }
     }
 
