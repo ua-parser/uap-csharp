@@ -107,23 +107,30 @@ namespace UAParser
         }
     }
 
-    public class ClientInfo
+    /// <summary>
+    /// Representing the parse results. Structure of this class aligns with the 
+    /// ua-parser-output WebIDL structure defined in this document: https://github.com/ua-parser/uap-core/blob/master/docs/specification.md
+    /// </summary>
+    public class UAParserOutput
     {
+        public string String { get; private set; }
         // ReSharper disable once InconsistentNaming
         public OS OS { get; private set; }
         public Device Device { get; private set; }
-        public UserAgent UserAgent { get; private set; }
+        // ReSharper disable once InconsistentNaming
+        public UserAgent UA { get; private set; }
 
-        public ClientInfo(OS os, Device device, UserAgent userAgent)
+        public UAParserOutput(string inputString, OS os, Device device, UserAgent userAgent)
         {
+            String = inputString;
             OS = os;
             Device = device;
-            UserAgent = userAgent;
+            UA = userAgent;
         }
 
         public override string ToString()
         {
-            return string.Format("{0} {1} {2}", OS, Device, UserAgent);
+            return string.Format("{0} {1} {2}", OS, Device, UA);
         }
     }
 
@@ -159,12 +166,12 @@ namespace UAParser
                 return new Parser(new MinimalYamlParser(reader.ReadToEnd()));
         }
 
-        public ClientInfo Parse(string uaString)
+        public UAParserOutput Parse(string uaString)
         {
             var os     = ParseOS(uaString);
             var device = ParseDevice(uaString);
             var ua     = ParseUserAgent(uaString);
-            return new ClientInfo(os, device, ua);
+            return new UAParserOutput(uaString, os, device, ua);
         }
 
         public OS ParseOS(string uaString) { return _osParser(uaString); }
