@@ -21,7 +21,7 @@
           if (uaString.Length == 0)
             continue;
           var c = uaParser.Parse(uaString);
-          Console.WriteLine("Agent : {0}", c.UserAgent);
+          Console.WriteLine("Agent : {0}", c.UA);
           Console.WriteLine("OS    : {0}", c.OS);
           Console.WriteLine("Device: {0}", c.Device);
       }
@@ -30,7 +30,7 @@
     static void Help()
     {
             Console.WriteLine(@"UAParser
-Copyright 2012 " + "S\u00f8ren Enem\u00e6rke" + @"
+Copyright 2015 " + "S\u00f8ren Enem\u00e6rke" + @"
 https://github.com/tobie/ua-parser
 
 This application accepts user agent strings (one per line) from standard 

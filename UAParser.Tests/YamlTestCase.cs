@@ -9,7 +9,7 @@ namespace UAParser.Tests
   public abstract class YamlTestCase
   {
     public string UserAgent { get; set; }
-    public abstract void Verify(ClientInfo clientInfo);
+    public abstract void Verify(UAParserOutput uaParserOutput);
 
     protected void AssertMatch<T>(T expected, T actual, string type)
     {
