@@ -31,8 +31,14 @@ namespace UAParser
     
     #endregion
 
+    /// <summary>
+    /// Represents the physical device the user agent is using
+    /// </summary>
     public sealed class Device
     {
+        /// <summary>
+        /// Constructs a Device instance
+        /// </summary>
         public Device(string family, string brand, string model)
         {
             Family = family.Trim();
@@ -42,19 +48,41 @@ namespace UAParser
                 Model = model.Trim();
         }
 
+        /// <summary>
+        /// Returns true if the device is likely to be a spider or a bot device
+        /// </summary>
+        public bool IsSpider { get { return "Spider".Equals(Family, StringComparison.OrdinalIgnoreCase); } }
+        /// <summary>
+        ///The brand of the device 
+        /// </summary>
         public string Brand { get; private set; }
+        /// <summary>
+        /// The family of the device, if available
+        /// </summary>
         public string Family { get; private set; }
+        /// <summary>
+        /// The model of the device, if available
+        /// </summary>
         public string Model { get; private set; }
 
+        /// <summary>
+        /// A readable description of the device
+        /// </summary>
         public override string ToString()
         {
             return Family;
         }
     }
 
+    /// <summary>
+    /// Represents the operating system the user agent runs on
+    /// </summary>
     // ReSharper disable once InconsistentNaming
     public sealed class OS
     {
+        /// <summary>
+        /// Constructs an OS instance
+        /// </summary>
         public OS(string family, string major, string minor, string patch, string patchMinor)
         {
             Family     = family;
@@ -64,12 +92,30 @@ namespace UAParser
             PatchMinor = patchMinor;
         }
 
+        /// <summary>
+        /// The familiy of the OS
+        /// </summary>
         public string Family     { get; private set; }
+        /// <summary>
+        /// The major version of the OS, if available
+        /// </summary>
         public string Major      { get; private set; }
+        /// <summary>
+        /// The minor version of the OS, if available
+        /// </summary>
         public string Minor      { get; private set; }
+        /// <summary>
+        /// The patch version of the OS, if available
+        /// </summary>
         public string Patch      { get; private set; }
+        /// <summary>
+        /// The minor patch version of the OS, if available
+        /// </summary>
         public string PatchMinor { get; private set; }
-
+        /// <summary>
+        /// A readable description of the OS
+        /// </summary>
+        /// <returns></returns>
         public override string ToString()
         {
             var version = VersionString.Format(Major, Minor, Patch, PatchMinor);
@@ -77,8 +123,14 @@ namespace UAParser
         }
     }
 
+    /// <summary>
+    /// Represents a user agent, commonly a browser
+    /// </summary>
     public sealed class UserAgent
     {
+        /// <summary>
+        /// Construct a UserAgent instance 
+        /// </summary>
         public UserAgent(string family, string major, string minor, string patch)
         {
             Family = family;
@@ -87,11 +139,27 @@ namespace UAParser
             Patch  = patch;
         }
 
+        /// <summary>
+        /// The family of user agent
+        /// </summary>
         public string Family { get; private set; }
+        /// <summary>
+        /// Major version of the user agent, if available
+        /// </summary>
         public string Major  { get; private set; }
+        /// <summary>
+        /// Minor version of the user agent, if available
+        /// </summary>
         public string Minor  { get; private set; }
+        /// <summary>
+        /// Patch version of the user agent, if available
+        /// </summary>
         public string Patch  { get; private set; }
 
+        /// <summary>
+        /// The user agent as a readbale string
+        /// </summary>
+        /// <returns></returns>
         public override string ToString()
         {
             var version = VersionString.Format(Major, Minor, Patch);
@@ -111,16 +179,65 @@ namespace UAParser
     /// Representing the parse results. Structure of this class aligns with the 
     /// ua-parser-output WebIDL structure defined in this document: https://github.com/ua-parser/uap-core/blob/master/docs/specification.md
     /// </summary>
-    public class UAParserOutput
+    public interface IUAParserOutput
     {
+        /// <summary>
+        /// The user agent string, the input for the UAParser
+        /// </summary>
+        string String { get; }
+
+        /// <summary>
+        /// The OS parsed from the user agent string
+        /// </summary>
+        // ReSharper disable once InconsistentNaming
+        OS OS { get; }
+        /// <summary>
+        /// The Device parsed from the user agent string
+        /// </summary>
+        Device Device { get; }
+        // ReSharper disable once InconsistentNaming
+        /// <summary>
+        /// The User Agent parsed from the user agent string
+        /// </summary>
+        UserAgent UA { get; }
+    }
+
+    /// <summary>
+    /// Represents the user agent client information resulting from parsing
+    /// a user agent string
+    /// </summary>
+    public class ClientInfo : IUAParserOutput
+    {
+        /// <summary>
+        /// The user agent string, the input for the UAParser
+        /// </summary>
         public string String { get; private set; }
         // ReSharper disable once InconsistentNaming
-        public OS OS { get; private set; }
-        public Device Device { get; private set; }
+        /// <summary>
+        /// The OS parsed from the user agent string
+        /// </summary>
         // ReSharper disable once InconsistentNaming
+        public OS OS { get; private set; }
+
+        /// <summary>
+        /// The Device parsed from the user agent string
+        /// </summary>
+        public Device Device { get; private set; }
+        /// <summary>
+        /// The User Agent parsed from the user agent string
+        /// </summary>
+        public UserAgent UserAgent { get { return UA; } }
+
+        // ReSharper disable once InconsistentNaming
+        /// <summary>
+        /// The User Agent parsed from the user agent string
+        /// </summary>
         public UserAgent UA { get; private set; }
 
-        public UAParserOutput(string inputString, OS os, Device device, UserAgent userAgent)
+        /// <summary>
+        /// Constructs an instance of the ClientInfo with results of the user agent string parsing 
+        /// </summary>
+        public ClientInfo(string inputString, OS os, Device device, UserAgent userAgent)
         {
             String = inputString;
             OS = os;
@@ -128,12 +245,19 @@ namespace UAParser
             UA = userAgent;
         }
 
+        /// <summary>
+        /// A readable description of the user agent client information
+        /// </summary>
+        /// <returns></returns>
         public override string ToString()
         {
             return string.Format("{0} {1} {2}", OS, Device, UA);
         }
     }
 
+    /// <summary>
+    /// Represents a parser of a user agent string
+    /// </summary>
     public sealed class Parser
     {
         readonly Func<string, OS> _osParser;
@@ -155,9 +279,24 @@ namespace UAParser
             return from cm in entries select selector(cm.Find);
         }
 
+        /// <summary>
+        /// Returns a <see cref="Parser"/> instance based on the regex definitions in a yaml string
+        /// </summary>
+        /// <param name="yaml">a string containing yaml definitions of reg-ex</param>
+        /// <returns>A <see cref="Parser"/> instance parsing user agent strings based on the regexes defined in the yaml string</returns>
         public static Parser FromYaml(string yaml) { return new Parser(new MinimalYamlParser(yaml)); }
+        /// <summary>
+        /// Returns a <see cref="Parser"/> instance based on the information in a yaml file
+        /// </summary>
+        /// <param name="path">the path to a yaml file containing regex definitions</param>
+        /// <returns>A <see cref="Parser"/> instance parsing user agent strings based on the regexes defined in the yaml string</returns>
         public static Parser FromYamlFile(string path) { return new Parser(new MinimalYamlParser(File.ReadAllText(path))); }
-
+        /// <summary>
+        /// Returns a <see cref="Parser"/> instance based on the embedded regex definitions. 
+        /// <remarks>The embedded regex definitions may be outdated. Consider passing in external yaml definitions using <see cref="Parser.FromYaml"/> or
+        /// <see cref="Parser.FromYamlFile"/></remarks>
+        /// </summary>
+        /// <returns></returns>
         public static Parser GetDefault()
         {
             using (var stream = typeof(Parser).Assembly.GetManifestResourceStream("UAParser.regexes.yaml"))
@@ -166,16 +305,28 @@ namespace UAParser
                 return new Parser(new MinimalYamlParser(reader.ReadToEnd()));
         }
 
-        public UAParserOutput Parse(string uaString)
+        /// <summary>
+        /// Parse a user agent string and obtain all client information
+        /// </summary>
+        public ClientInfo Parse(string uaString)
         {
             var os     = ParseOS(uaString);
             var device = ParseDevice(uaString);
             var ua     = ParseUserAgent(uaString);
-            return new UAParserOutput(uaString, os, device, ua);
+            return new ClientInfo(uaString, os, device, ua);
         }
 
+        /// <summary>
+        /// Parse a user agent string and obtain the OS information
+        /// </summary>
         public OS ParseOS(string uaString) { return _osParser(uaString); }
+        /// <summary>
+        /// Parse a user agent string and obtain the device information
+        /// </summary>
         public Device ParseDevice(string uaString) { return _deviceParser(uaString); }
+        /// <summary>
+        /// Parse a user agent string and obtain the UserAgent information
+        /// </summary>
         public UserAgent ParseUserAgent(string uaString) { return _userAgentParser(uaString); }
 
         static Func<string, T> CreateParser<T>(IEnumerable<Func<string, T>> parsers, T defaultValue) where T : class

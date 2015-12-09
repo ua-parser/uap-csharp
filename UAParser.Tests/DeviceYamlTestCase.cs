@@ -21,10 +21,10 @@ namespace UAParser.Tests
 
     public string Family { get; set; }
 
-    public override void Verify(UAParserOutput uaParserOutput)
+    public override void Verify(ClientInfo clientInfo)
     {
-      Assert.NotNull(uaParserOutput);
-      AssertMatch(Family,uaParserOutput.Device.Family,"Family");
+      Assert.NotNull(clientInfo);
+      AssertMatch(Family,clientInfo.Device.Family,"Family");
     }
   }
 
@@ -50,14 +50,14 @@ namespace UAParser.Tests
     public string Patch { get; set; }
     public string PatchMinor { get; set; }
 
-    public override void Verify(UAParserOutput uaParserOutput)
+    public override void Verify(ClientInfo clientInfo)
     {
-      Assert.NotNull(uaParserOutput);
-      AssertMatch(Family, uaParserOutput.OS.Family, "Family");
-      AssertMatch(Major, uaParserOutput.OS.Major, "Major");
-      AssertMatch(Minor, uaParserOutput.OS.Minor, "Minor");
-      AssertMatch(Patch, uaParserOutput.OS.Patch, "Patch");
-      AssertMatch(PatchMinor, uaParserOutput.OS.PatchMinor, "PatchMinor");
+      Assert.NotNull(clientInfo);
+      AssertMatch(Family, clientInfo.OS.Family, "Family");
+      AssertMatch(Major, clientInfo.OS.Major, "Major");
+      AssertMatch(Minor, clientInfo.OS.Minor, "Minor");
+      AssertMatch(Patch, clientInfo.OS.Patch, "Patch");
+      AssertMatch(PatchMinor, clientInfo.OS.PatchMinor, "PatchMinor");
       
     }
   }
@@ -82,13 +82,13 @@ namespace UAParser.Tests
     public string Minor { get; set; }
     public string Patch { get; set; }
 
-    public override void Verify(UAParserOutput uaParserOutput)
+    public override void Verify(ClientInfo clientInfo)
     {
-      Assert.NotNull(uaParserOutput);
-      AssertMatch(Family, uaParserOutput.UA.Family, "Family");
-      AssertMatch(Major, uaParserOutput.UA.Major, "Major");
-      AssertMatch(Minor, uaParserOutput.UA.Minor, "Minor");
-      AssertMatch(Patch, uaParserOutput.UA.Patch, "Patch");
+      Assert.NotNull(clientInfo);
+      AssertMatch(Family, clientInfo.UA.Family, "Family");
+      AssertMatch(Major, clientInfo.UA.Major, "Major");
+      AssertMatch(Minor, clientInfo.UA.Minor, "Minor");
+      AssertMatch(Patch, clientInfo.UA.Patch, "Patch");
 
     }
   }
