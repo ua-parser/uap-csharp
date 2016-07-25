@@ -561,7 +561,7 @@ namespace UAParser
     /// dependency on large Yaml parsing lib. Note that a unittest ensures compatibility
     /// by ensuring regexes and properties are read similar to using the full yaml lib
     /// </summary>
-    internal class MinimalYamlParser
+    public class MinimalYamlParser
     {
         internal class Mapping
         {

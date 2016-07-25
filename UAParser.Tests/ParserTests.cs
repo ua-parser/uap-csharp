@@ -19,7 +19,7 @@ namespace UAParser.Tests
     [Fact]
     public void can_get_parser_from_input()
     {
-      string yamlContent = this.GetTestResources("UAParser.Tests.Regexes.regexes.yaml");
+      string yamlContent = this.GetTestResources("UAParser.Tests.regexes.yaml");
       Parser parser = Parser.FromYaml(yamlContent);
       Assert.NotNull(parser);
     }
@@ -27,7 +27,7 @@ namespace UAParser.Tests
     [Fact]
     public void can_get_parser_from_file()
     {
-        string yamlContent = this.GetTestResources("UAParser.Tests.Regexes.regexes.yaml");
+        string yamlContent = this.GetTestResources("UAParser.Tests.regexes.yaml");
         string path = Path.GetTempFileName();
         File.WriteAllText(path, yamlContent, Encoding.UTF8);
         Parser parser = Parser.FromYamlFile(path);

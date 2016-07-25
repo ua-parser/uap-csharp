@@ -1,0 +1,43 @@
+﻿{
+  "version": "1.0.0-*",
+  "testRunner": "xunit",
+  "dependencies": {
+    "UAParser": { "target": "project" },
+    "xunit": "2.1.0",
+    "xunit.runner.console": "2.0.0",
+    "dotnet-test-xunit": "2.2.0-*",
+    "YamlDotNet": "3.9.0"
+  },
+
+  "buildOptions": {
+    "embed": {
+      "includeFiles": [
+        "..\\uap-core\\regexes.yaml",
+        "..\\uap-core\\tests\\test_device.yaml",
+        "..\\uap-core\\tests\\test_os.yaml",
+        "..\\uap-core\\tests\\test_ua.yaml",
+        "..\\uap-core\\test_resources\\additional_os_tests.yaml",
+        "..\\uap-core\\test_resources\\firefox_user_agent_strings.yaml",
+        "..\\uap-core\\test_resources\\pgts_browser_list-orig.yaml",
+        "..\\uap-core\\test_resources\\pgts_browser_list.yaml"
+      ]
+    }
+  },
+
+  "frameworks": {
+    "netcoreapp1.0": {
+      "define": [ "ASYNCLOCAL" ],
+      "dependencies": {
+        "Microsoft.NETCore.App": {
+          "type": "platform",
+          "version": "1.0.0"
+        }
+      },
+      "imports": [
+        "dnxcore50",
+        "portable-net45+win8"
+      ]
+    }
+  }
+
+}
