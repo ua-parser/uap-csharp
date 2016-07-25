@@ -17,7 +17,8 @@
 //
 #endregion
 
-using System.Security.Policy;
+using System.Reflection;
+using System.Text;
 
 namespace UAParser
 {
@@ -297,12 +298,12 @@ namespace UAParser
         /// <see cref="Parser.FromYamlFile"/></remarks>
         /// </summary>
         /// <returns></returns>
-        public static Parser GetDefault()
-        {
-            using (var stream = typeof(Parser).Assembly.GetManifestResourceStream("UAParser.regexes.yaml"))
-            // ReSharper disable once AssignNullToNotNullAttribute
-            using (var reader = new StreamReader(stream))
+        public static Parser GetDefault() {
+            var assembly = Assembly.Load(new AssemblyName("UAParser"));
+            var resourceStream = assembly.GetManifestResourceStream("UAParser.regexes.yaml");
+            using (var reader = new StreamReader(resourceStream, Encoding.UTF8)) {
                 return new Parser(new MinimalYamlParser(reader.ReadToEnd()));
+            }
         }
 
         /// <summary>

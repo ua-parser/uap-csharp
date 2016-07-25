@@ -1,0 +1,32 @@
+﻿{
+  "version": "2.2.0-*",
+
+  "description": "C# port of the UAParser",
+  "authors": [ "Søren Enemærke @sorenenemaerke / Atif Aziz @raboof" ],
+
+  "packOptions": {
+    "tags": [ "uaparser" ],
+    "projectUrl": "https://github.com/ua-parser/uap-csharp"
+  },
+
+  "dependencies": {
+    "NETStandard.Library": "1.6.0"
+  },
+
+  "buildOptions": {
+    "embed": {
+      "includeFiles": "..\\uap-core\\regexes.yaml"
+    }
+  },
+
+  "frameworks": {
+    "netstandard1.6": {
+      "imports": "dnxcore50"
+    },
+    "net4": {
+      "buildOptions": {
+        "define": [ "REMOTING" ]
+      }
+    }
+  }
+}
