@@ -1,12 +1,8 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 2013
-VisualStudioVersion = 12.0.30723.0
+# Visual Studio 14
+VisualStudioVersion = 14.0.25420.1
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "UAParser.ConsoleApp", "UAParser.ConsoleApp\UAParser.ConsoleApp.csproj", "{280CF383-6A6E-487B-9D25-281C98F3A7C8}"
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "UAParser", "UAParser\UAParser.csproj", "{83C63BEA-1859-4DD5-AE08-9A0FEC269B17}"
-EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Items", "Items", "{AB82C54B-9D7F-4FD6-B3F3-05589F11E4C2}"
 	ProjectSection(SolutionItems) = preProject
 		build.bat = build.bat
@@ -15,8 +11,6 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Items", "Items", "{AB82C54B
 		UAParser\UAParser.nuspec = UAParser\UAParser.nuspec
 	EndProjectSection
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "UAParser.Tests", "UAParser.Tests\UAParser.Tests.csproj", "{967089C7-1D9D-453E-AAA8-ED26BCECCE20}"
-EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = ".nuget", ".nuget", "{5C3BCDB7-71FF-46A2-8096-ECB821509915}"
 	ProjectSection(SolutionItems) = preProject
 		.nuget\NuGet.Config = .nuget\NuGet.Config
@@ -24,24 +18,30 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = ".nuget", ".nuget", "{5C3BCD
 		.nuget\NuGet.targets = .nuget\NuGet.targets
 	EndProjectSection
 EndProject
+Project("{8BB2217D-0F2D-49D1-97BC-3654ED321F3B}") = "UAParser", "UAParser\UAParser.xproj", "{88C6D91E-E28F-41FF-8B5E-3E1EAE076D08}"
+EndProject
+Project("{8BB2217D-0F2D-49D1-97BC-3654ED321F3B}") = "UAParser.ConsoleApp", "UAParser.ConsoleApp\UAParser.ConsoleApp.xproj", "{5A484BB6-4965-43CE-94EC-6AEC050DF3B8}"
+EndProject
+Project("{8BB2217D-0F2D-49D1-97BC-3654ED321F3B}") = "UAParser.Tests", "UAParser.Tests\UAParser.Tests.xproj", "{7D844531-DFD5-4327-A911-82607D601B77}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
 		Release|Any CPU = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{280CF383-6A6E-487B-9D25-281C98F3A7C8}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{280CF383-6A6E-487B-9D25-281C98F3A7C8}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{280CF383-6A6E-487B-9D25-281C98F3A7C8}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{280CF383-6A6E-487B-9D25-281C98F3A7C8}.Release|Any CPU.Build.0 = Release|Any CPU
-		{83C63BEA-1859-4DD5-AE08-9A0FEC269B17}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{83C63BEA-1859-4DD5-AE08-9A0FEC269B17}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{83C63BEA-1859-4DD5-AE08-9A0FEC269B17}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{83C63BEA-1859-4DD5-AE08-9A0FEC269B17}.Release|Any CPU.Build.0 = Release|Any CPU
-		{967089C7-1D9D-453E-AAA8-ED26BCECCE20}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{967089C7-1D9D-453E-AAA8-ED26BCECCE20}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{967089C7-1D9D-453E-AAA8-ED26BCECCE20}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{967089C7-1D9D-453E-AAA8-ED26BCECCE20}.Release|Any CPU.Build.0 = Release|Any CPU
+		{88C6D91E-E28F-41FF-8B5E-3E1EAE076D08}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{88C6D91E-E28F-41FF-8B5E-3E1EAE076D08}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{88C6D91E-E28F-41FF-8B5E-3E1EAE076D08}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{88C6D91E-E28F-41FF-8B5E-3E1EAE076D08}.Release|Any CPU.Build.0 = Release|Any CPU
+		{5A484BB6-4965-43CE-94EC-6AEC050DF3B8}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{5A484BB6-4965-43CE-94EC-6AEC050DF3B8}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{5A484BB6-4965-43CE-94EC-6AEC050DF3B8}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{5A484BB6-4965-43CE-94EC-6AEC050DF3B8}.Release|Any CPU.Build.0 = Release|Any CPU
+		{7D844531-DFD5-4327-A911-82607D601B77}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{7D844531-DFD5-4327-A911-82607D601B77}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{7D844531-DFD5-4327-A911-82607D601B77}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{7D844531-DFD5-4327-A911-82607D601B77}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

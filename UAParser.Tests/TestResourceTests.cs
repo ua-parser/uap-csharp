@@ -14,37 +14,37 @@ namespace UAParser.Tests
     [Fact]
     public void can_run_device_tests()
     {
-      RunTests("UAParser.Tests.TestResources.test_device.yaml", DeviceYamlTestCase.ReadFromMap);
+      RunTests("UAParser.Tests.test_device.yaml", DeviceYamlTestCase.ReadFromMap);
     }
 
     [Fact]
     public void can_run_additional_os_tests()
     {
-      RunTests("UAParser.Tests.TestResources.additional_os_tests.yaml", OSYamlTestCase.ReadFromMap);
+      RunTests("UAParser.Tests.additional_os_tests.yaml", OSYamlTestCase.ReadFromMap);
     }
 
     [Fact]
     public void can_run_firefox_user_agent_string_tests()
     {
-      RunTests("UAParser.Tests.TestResources.firefox_user_agent_strings.yaml", UserAgentYamlTestCase.ReadFromMap);
+      RunTests("UAParser.Tests.firefox_user_agent_strings.yaml", UserAgentYamlTestCase.ReadFromMap);
     }
 
     [Fact]
     public void can_run_pgts_browser_list_tests()
     {
-      RunTests("UAParser.Tests.TestResources.pgts_browser_list.yaml", UserAgentYamlTestCase.ReadFromMap);
+      RunTests("UAParser.Tests.pgts_browser_list.yaml", UserAgentYamlTestCase.ReadFromMap);
     }
 
     [Fact]
     public void can_run_user_agent_parser_tests()
     {
-      RunTests("UAParser.Tests.TestResources.test_ua.yaml", UserAgentYamlTestCase.ReadFromMap);
+      RunTests("UAParser.Tests.test_ua.yaml", UserAgentYamlTestCase.ReadFromMap);
     }
 
     [Fact]
     public void can_run_user_agent_parser_os_tests()
     {
-      RunTests("UAParser.Tests.TestResources.test_os.yaml", OSYamlTestCase.ReadFromMap);
+      RunTests("UAParser.Tests.test_os.yaml", OSYamlTestCase.ReadFromMap);
     }
 
     public void RunTests<TTestCase>(
@@ -76,7 +76,7 @@ namespace UAParser.Tests
         {
           tc.Verify(clientInfo);
         }
-        catch (AssertException ex)
+        catch (Exception ex)
         {
           sb.AppendLine("testcase "+(i+1)+": " +ex.Message);
         }

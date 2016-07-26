@@ -12,7 +12,7 @@ namespace UAParser.Tests
         public void can_parse_same_regexes_using_minimal_yaml_parser()
         {
             //read in the yaml file in fully functional yaml parser
-            string yamlContent = this.GetTestResources("UAParser.Tests.Regexes.regexes.yaml");
+            string yamlContent = this.GetTestResources("UAParser.Tests.regexes.yaml");
             Assert.NotNull(yamlContent);
             Assert.NotEqual("", yamlContent);
 

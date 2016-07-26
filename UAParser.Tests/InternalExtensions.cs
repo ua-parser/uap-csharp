@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Reflection;
 using System.Text;
 using YamlDotNet.RepresentationModel;
 
@@ -29,7 +30,8 @@ namespace UAParser.Tests
         }
         internal static string GetTestResources(this object self, string name)
         {
-            using (Stream s = typeof(TestResourceTests).Assembly.GetManifestResourceStream(name))
+            var assembly = Assembly.Load(new AssemblyName("UAParser.Tests"));
+            using (Stream s = assembly.GetManifestResourceStream(name))
             {
                 if (s == null)
                     throw new InvalidOperationException("Could not locate an embedded test resource with name: " + name);

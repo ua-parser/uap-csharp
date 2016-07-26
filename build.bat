@@ -1,1 +1,2 @@
-%SystemRoot%\Microsoft.Net\Framework\v4.0.30319\msbuild.exe build.proj /t:All
+dotnet build UAParser/project.json
+dotnet test UAParser.Tests/project.json --no-build
