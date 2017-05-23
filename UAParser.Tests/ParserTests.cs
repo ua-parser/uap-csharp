@@ -34,5 +34,14 @@ namespace UAParser.Tests
         Assert.NotNull(parser);
         File.Delete(path);
     }
+
+    [Fact]
+    public void ignore_case_test()
+    {
+      Parser parser = Parser.GetDefault(ignoreCase: true);
+      var client = parser.Parse("mozilla/5.0 (windows; u; en-us) applewebkit/531.9 (khtml, like gecko) adobeair/2.5.1");
+      Assert.Equal("AdobeAIR", client.UserAgent.Family, StringComparer.OrdinalIgnoreCase);
+      Assert.Equal("Windows", client.OS.Family, StringComparer.OrdinalIgnoreCase);
+    }
   }
 }

@@ -264,14 +264,27 @@ namespace UAParser
         readonly Func<string, Device> _deviceParser;
         readonly Func<string, UserAgent> _userAgentParser;
 
-        Parser(MinimalYamlParser yamlParser)
+        Parser(MinimalYamlParser yamlParser, bool ignoreCase = false)
         {
             const string other = "Other";
             var defaultDevice = new Device(other, "", "");
 
+            if (ignoreCase)
+                AddIgnoreCase(yamlParser.Mappings);
             _userAgentParser = CreateParser(Read(yamlParser.ReadMapping("user_agent_parsers"), Config.UserAgent), new UserAgent(other, null, null, null));
             _osParser = CreateParser(Read(yamlParser.ReadMapping("os_parsers"), Config.OS), new OS(other, null, null, null, null));
             _deviceParser = CreateParser(Read(yamlParser.ReadMapping("device_parsers"), Config.Device), defaultDevice);
+        }
+
+        private static void AddIgnoreCase(IDictionary<string, MinimalYamlParser.Mapping> mappings)
+        {
+            foreach (var pair in mappings)
+            {
+                foreach (var seq in pair.Value.Sequences)
+                {
+                    seq["regex_flag"] = "i";
+                }
+            }
         }
 
         static IEnumerable<T> Read<T>(IEnumerable<Dictionary<string, string>> entries, Func<Func<string, string>, T> selector)
@@ -283,26 +296,28 @@ namespace UAParser
         /// Returns a <see cref="Parser"/> instance based on the regex definitions in a yaml string
         /// </summary>
         /// <param name="yaml">a string containing yaml definitions of reg-ex</param>
+        /// <param name="ignoreCase"></param>
         /// <returns>A <see cref="Parser"/> instance parsing user agent strings based on the regexes defined in the yaml string</returns>
-        public static Parser FromYaml(string yaml) { return new Parser(new MinimalYamlParser(yaml)); }
+        public static Parser FromYaml(string yaml, bool ignoreCase = false) { return new Parser(new MinimalYamlParser(yaml), ignoreCase); }
         /// <summary>
         /// Returns a <see cref="Parser"/> instance based on the information in a yaml file
         /// </summary>
         /// <param name="path">the path to a yaml file containing regex definitions</param>
+        /// <param name="ignoreCase"></param>
         /// <returns>A <see cref="Parser"/> instance parsing user agent strings based on the regexes defined in the yaml string</returns>
-        public static Parser FromYamlFile(string path) { return new Parser(new MinimalYamlParser(File.ReadAllText(path))); }
+        public static Parser FromYamlFile(string path, bool ignoreCase = false) { return new Parser(new MinimalYamlParser(File.ReadAllText(path)), ignoreCase); }
         /// <summary>
         /// Returns a <see cref="Parser"/> instance based on the embedded regex definitions. 
         /// <remarks>The embedded regex definitions may be outdated. Consider passing in external yaml definitions using <see cref="Parser.FromYaml"/> or
         /// <see cref="Parser.FromYamlFile"/></remarks>
         /// </summary>
         /// <returns></returns>
-        public static Parser GetDefault()
+        public static Parser GetDefault(bool ignoreCase = false)
         {
             using (var stream = typeof(Parser).Assembly.GetManifestResourceStream("UAParser.regexes.yaml"))
             // ReSharper disable once AssignNullToNotNullAttribute
             using (var reader = new StreamReader(stream))
-                return new Parser(new MinimalYamlParser(reader.ReadToEnd()));
+                return new Parser(new MinimalYamlParser(reader.ReadToEnd()), ignoreCase);
         }
 
         /// <summary>
@@ -345,7 +360,7 @@ namespace UAParser
             // ReSharper disable once InconsistentNaming
             public static Func<string, OS> OS(Func<string, string> indexer)
             {
-                var regex = Regex(indexer, "OS");
+                var regex = Regex(indexer, "OS", indexer("regex_flag"));
                 var os = indexer("os_replacement");
                 var v1 = indexer("os_v1_replacement");
                 var v2 = indexer("os_v2_replacement");
@@ -356,7 +371,7 @@ namespace UAParser
 
             public static Func<string, UserAgent> UserAgent(Func<string, string> indexer)
             {
-                var regex = Regex(indexer, "User agent");
+                var regex = Regex(indexer, "User agent", indexer("regex_flag"));
                 var family = indexer("family_replacement");
                 var v1 = indexer("v1_replacement");
                 var v2 = indexer("v2_replacement");
