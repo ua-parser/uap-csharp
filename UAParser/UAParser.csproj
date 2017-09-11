@@ -1,41 +1,45 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
-  <PropertyGroup>
-    <TargetFramework>netstandard1.0</TargetFramework>
-      <PackageId>UAParser</PackageId>
-      <Authors>enemaerke</Authors>
-      <Description>A .net wrapper for the ua-parser library</Description>
-      <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
-      <Copyright>Copyright 2017</Copyright>
-      <PackageTags>UAParser .Net UserAgent Parsing</PackageTags>
-      <AssemblyName>UAParser</AssemblyName>
-      <RootNamespace>UAParser</RootNamespace>
-      <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
-      <Version>2.2.0</Version>
-      <PackageProjectUrl>https://github.com/ua-parser/uap-csharp</PackageProjectUrl>
-      <PackageLicenseUrl>https://github.com/ua-parser/uap-csharp/blob/master/LICENSE</PackageLicenseUrl>
-      <RepositoryUrl>https://github.com/ua-parser/uap-csharp</RepositoryUrl>
-      <AssemblyVersion>2.2.0.0</AssemblyVersion>
-      <FileVersion>2.2.0.0</FileVersion>
-      <Company />
-      <SignAssembly>true</SignAssembly>
-      <AssemblyOriginatorKeyFile>../PublicKey.snk</AssemblyOriginatorKeyFile>
-  </PropertyGroup>
+    <PropertyGroup>
+        <TargetFrameworks>netstandard1.0;netstandard1.3</TargetFrameworks>
+        <PackageId>UAParser</PackageId>
+        <Authors>enemaerke</Authors>
+        <Description>A .net wrapper for the ua-parser library</Description>
+        <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
+        <Copyright>Copyright 2017</Copyright>
+        <PackageTags>UAParser .Net UserAgent Parsing</PackageTags>
+        <AssemblyName>UAParser</AssemblyName>
+        <RootNamespace>UAParser</RootNamespace>
+        <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+        <Version>3.0.0</Version>
+        <PackageProjectUrl>https://github.com/ua-parser/uap-csharp</PackageProjectUrl>
+        <PackageLicenseUrl>https://github.com/ua-parser/uap-csharp/blob/master/LICENSE</PackageLicenseUrl>
+        <RepositoryUrl>https://github.com/ua-parser/uap-csharp</RepositoryUrl>
+        <AssemblyVersion>3.0.0.0</AssemblyVersion>
+        <FileVersion>3.0.0.0</FileVersion>
+        <Company />
+        <SignAssembly>true</SignAssembly>
+        <AssemblyOriginatorKeyFile>../PublicKey.snk</AssemblyOriginatorKeyFile>
+    </PropertyGroup>
 
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
-    <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
-    <WarningsAsErrors />
-    <DocumentationFile>bin\Debug\netstandard1.3\UAParser.xml</DocumentationFile>
-  </PropertyGroup>
+    <PropertyGroup Condition="'$(TargetFramework)'=='netstandard1.3'">
+        <DefineConstants>REGEX_COMPILATION</DefineConstants>
+    </PropertyGroup>
 
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
-    <DocumentationFile>bin\Release\netstandard1.3\UAParser.xml</DocumentationFile>
-    <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
-    <WarningsAsErrors />
-  </PropertyGroup>
+    <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
+        <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+        <WarningsAsErrors />
+        <DocumentationFile>bin\Debug\netstandard1.3\UAParser.xml</DocumentationFile>
+    </PropertyGroup>
 
-  <ItemGroup>
-    <EmbeddedResource Include="..\uap-core\regexes.yaml" Link="regexes.yaml" />
-  </ItemGroup>
+    <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
+        <DocumentationFile>bin\Release\netstandard1.3\UAParser.xml</DocumentationFile>
+        <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+        <WarningsAsErrors />
+    </PropertyGroup>
+
+    <ItemGroup>
+        <EmbeddedResource Include="..\uap-core\regexes.yaml" Link="regexes.yaml" />
+    </ItemGroup>
 
 </Project>
