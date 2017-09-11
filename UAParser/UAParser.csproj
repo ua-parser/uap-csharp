@@ -29,11 +29,11 @@
     <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
         <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
         <WarningsAsErrors />
-        <DocumentationFile>bin\Debug\netstandard1.3\UAParser.xml</DocumentationFile>
+        <DocumentationFile>bin\Debug\netstandard1.0\UAParser.xml</DocumentationFile>
     </PropertyGroup>
 
     <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
-        <DocumentationFile>bin\Release\netstandard1.3\UAParser.xml</DocumentationFile>
+        <DocumentationFile>bin\Release\netstandard1.0\UAParser.xml</DocumentationFile>
         <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
         <WarningsAsErrors />
     </PropertyGroup>
