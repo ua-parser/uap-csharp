@@ -264,11 +264,10 @@ namespace UAParser
         Parser(MinimalYamlParser yamlParser)
         {
             const string other = "Other";
-            var defaultDevice = new Device(other, "", "");
 
-            _userAgentParser = CreateParser(Read(yamlParser.ReadMapping("user_agent_parsers"), Config.UserAgent), new UserAgent(other, null, null, null));
-            _osParser = CreateParser(Read(yamlParser.ReadMapping("os_parsers"), Config.OS), new OS(other, null, null, null, null));
-            _deviceParser = CreateParser(Read(yamlParser.ReadMapping("device_parsers"), Config.Device), defaultDevice);
+            _userAgentParser = CreateParser(Read(yamlParser.ReadMapping("user_agent_parsers"), Config.UserAgentSelector), new UserAgent(other, null, null, null));
+            _osParser = CreateParser(Read(yamlParser.ReadMapping("os_parsers"), Config.OSSelector), new OS(other, null, null, null, null));
+            _deviceParser = CreateParser(Read(yamlParser.ReadMapping("device_parsers"), Config.DeviceSelector), new Device(other, string.Empty, string.Empty));
         }
 
         static IEnumerable<T> Read<T>(IEnumerable<Dictionary<string, string>> entries, Func<Func<string, string>, T> selector)
@@ -281,7 +280,10 @@ namespace UAParser
         /// </summary>
         /// <param name="yaml">a string containing yaml definitions of reg-ex</param>
         /// <returns>A <see cref="Parser"/> instance parsing user agent strings based on the regexes defined in the yaml string</returns>
-        public static Parser FromYaml(string yaml) { return new Parser(new MinimalYamlParser(yaml)); }
+        public static Parser FromYaml(string yaml)
+        {
+            return new Parser(new MinimalYamlParser(yaml));
+        }
 
         /// <summary>
         /// Returns a <see cref="Parser"/> instance based on the embedded regex definitions. 
@@ -320,21 +322,21 @@ namespace UAParser
         /// </summary>
         public UserAgent ParseUserAgent(string uaString) { return _userAgentParser(uaString); }
 
-        static Func<string, T> CreateParser<T>(IEnumerable<Func<string, T>> parsers, T defaultValue) where T : class
+        private static Func<string, T> CreateParser<T>(IEnumerable<Func<string, T>> parsers, T defaultValue) where T : class
         {
             return CreateParser(parsers, defaultValue, t => t);
         }
 
-        static Func<string, TResult> CreateParser<T, TResult>(IEnumerable<Func<string, T>> parsers, T defaultValue, Func<T, TResult> selector) where T : class
+        private static Func<string, TResult> CreateParser<T, TResult>(IEnumerable<Func<string, T>> parsers, T defaultValue, Func<T, TResult> selector) where T : class
         {
             parsers = parsers?.ToArray() ?? Enumerable.Empty<Func<string, T>>();
             return ua => selector(parsers.Select(p => p(ua)).FirstOrDefault(m => m != null) ?? defaultValue);
         }
 
-        static class Config
+        private static class Config
         {
             // ReSharper disable once InconsistentNaming
-            public static Func<string, OS> OS(Func<string, string> indexer)
+            public static Func<string, OS> OSSelector(Func<string, string> indexer)
             {
                 var regex = Regex(indexer, "OS");
                 var os = indexer("os_replacement");
@@ -345,7 +347,7 @@ namespace UAParser
                 return Parsers.OS(regex, os, v1, v2, v3, v4);
             }
 
-            public static Func<string, UserAgent> UserAgent(Func<string, string> indexer)
+            public static Func<string, UserAgent> UserAgentSelector(Func<string, string> indexer)
             {
                 var regex = Regex(indexer, "User agent");
                 var family = indexer("family_replacement");
@@ -355,7 +357,7 @@ namespace UAParser
                 return Parsers.UserAgent(regex, family, v1, v2, v3);
             }
 
-            public static Func<string, Device> Device(Func<string, string> indexer)
+            public static Func<string, Device> DeviceSelector(Func<string, string> indexer)
             {
                 var regex = Regex(indexer, "Device", indexer("regex_flag"));
                 var device = indexer("device_replacement");
@@ -430,23 +432,22 @@ namespace UAParser
                      : Replace(replacement);
             }
 
-            private static readonly string[] AllTokens = new string[]
+            private static readonly string[] _allReplacementTokens = new string[]
             {
                 "$1","$2","$3","$4","$5","$6","$7","$8","$91",
             };
             
-            static Func<Match, IEnumerator<int>, string> ReplaceAll(
-                string replacement)
+            private static Func<Match, IEnumerator<int>, string> ReplaceAll(string replacement)
             {
                 if (replacement == null)
                     return Select();
 
-                Func<string, string, string, string> replaceFunction = (replacementString, matchedGroup, token) =>
+                string ReplaceFunction(string replacementString, string matchedGroup, string token)
                 {
                     return matchedGroup != null
                         ? replacementString.ReplaceFirstOccurence(token, matchedGroup)
                         : replacementString;
-                };
+                }
 
                 return (m, num) =>
                 {
@@ -454,18 +455,18 @@ namespace UAParser
                     if (finalString.Contains("$"))
                     {
                         var groups = m.Groups;
-                        for (int i = 0; i < AllTokens.Length; i++)
+                        for (int i = 0; i < _allReplacementTokens.Length; i++)
                         {
                             int tokenNumber = i + 1;
-                            string token = AllTokens[i];
-                            Group group;
+                            string token = _allReplacementTokens[i];
                             if (finalString.Contains(token))
                             {
                                 var replacementText = string.Empty;
+                                Group group;
                                 if (tokenNumber <= groups.Count && (group = groups[tokenNumber]).Success)
                                     replacementText = group.Value;
 
-                                finalString = replaceFunction(finalString, replacementText, token);
+                                finalString = ReplaceFunction(finalString, replacementText, token);
                             }
                             if (!finalString.Contains("$"))
                                 break;
@@ -475,9 +476,12 @@ namespace UAParser
                 };
             }
 
-            static Func<Match, IEnumerator<int>, string> Select() { return Select(v => v); }
+            private static Func<Match, IEnumerator<int>, string> Select()
+            {
+                return Select(v => v);
+            }
 
-            static Func<Match, IEnumerator<int>, T> Select<T>(Func<string, T> selector)
+            private static Func<Match, IEnumerator<int>, T> Select<T>(Func<string, T> selector)
             {
                 return (m, num) =>
                 {
@@ -488,7 +492,7 @@ namespace UAParser
                 };
             }
 
-            static Func<string, T> Create<T>(Regex regex, Func<Match, IEnumerator<int>, T> binder)
+            private static Func<string, T> Create<T>(Regex regex, Func<Match, IEnumerator<int>, T> binder)
             {
                 return input =>
                 {
@@ -498,7 +502,7 @@ namespace UAParser
                 };
             }
 
-            static IEnumerator<T> Generate<T>(T initial, Func<T, T> next)
+            private static IEnumerator<T> Generate<T>(T initial, Func<T, T> next)
             {
                 for (var state = initial; ; state = next(state))
                     yield return state;
@@ -507,7 +511,7 @@ namespace UAParser
         }
     }
 
-    static class RegexBinderBuilder
+    internal static class RegexBinderBuilder
     {
         public static Func<Match, IEnumerator<int>, TResult> SelectMany<T1, T2, TResult>(
             this Func<Match, IEnumerator<int>, T1> binder,
@@ -524,11 +528,11 @@ namespace UAParser
         }
     }
 
-    static class StringExtensions
+    internal static class StringExtensions
     {
         public static string ReplaceFirstOccurence(this string input, string search, string replacement)
         {
-            if (input == null) throw new ArgumentNullException("input");
+            if (input == null) throw new ArgumentNullException(nameof(input));
             var index = input.IndexOf(search, StringComparison.Ordinal);
             return index >= 0
                  ? input.Substring(0, index) + replacement + input.Substring(index + search.Length)
@@ -536,13 +540,12 @@ namespace UAParser
         }
     }
 
-    static class DictionaryExtensions
+    internal static class DictionaryExtensions
     {
         public static TValue Find<TKey, TValue>(this IDictionary<TKey, TValue> dictionary, TKey key)
         {
-            if (dictionary == null) throw new ArgumentNullException("dictionary");
-            TValue result;
-            return dictionary.TryGetValue(key, out result) ? result : default(TValue);
+            if (dictionary == null) throw new ArgumentNullException(nameof(dictionary));
+            return dictionary.TryGetValue(key, out var result) ? result : default(TValue);
         }
     }
 
@@ -555,7 +558,7 @@ namespace UAParser
     {
         internal class Mapping
         {
-            private Dictionary<string, string> m_lastEntry;
+            private Dictionary<string, string> _lastEntry;
 
             public Mapping()
             {
@@ -566,24 +569,24 @@ namespace UAParser
 
             public void BeginSequence()
             {
-                m_lastEntry = new Dictionary<string, string>();
-                Sequences.Add(m_lastEntry);
+                _lastEntry = new Dictionary<string, string>();
+                Sequences.Add(_lastEntry);
             }
 
             public void AddToSequence(string key, string value)
             {
-                m_lastEntry[key] = value;
+                _lastEntry[key] = value;
             }
         }
 
-        private readonly Dictionary<string, Mapping> m_mappings = new Dictionary<string, Mapping>();
+        private readonly Dictionary<string, Mapping> _mappings = new Dictionary<string, Mapping>();
 
         public MinimalYamlParser(string yamlString)
         {
             ReadIntoMappingModel(yamlString);
         }
 
-        internal IDictionary<string, Mapping> Mappings => m_mappings;
+        internal IDictionary<string, Mapping> Mappings => _mappings;
 
         private void ReadIntoMappingModel(string yamlInputString)
         {
@@ -608,7 +611,7 @@ namespace UAParser
                         throw new ArgumentException("YamlParsing: Expecting mapping entry to contain a ':', at line " + lineCount);
                     string name = line.Substring(0, indexOfMappingColon).Trim();
                     activeMapping = new Mapping();
-                    m_mappings.Add(name, activeMapping);
+                    _mappings.Add(name, activeMapping);
                     continue;
                 }
 
@@ -644,8 +647,7 @@ namespace UAParser
 
         public IEnumerable<Dictionary<string, string>> ReadMapping(string mappingName)
         {
-            Mapping mapping;
-            if (m_mappings.TryGetValue(mappingName, out mapping))
+            if (_mappings.TryGetValue(mappingName, out var mapping))
             {
                 foreach (var s in mapping.Sequences)
                 {
