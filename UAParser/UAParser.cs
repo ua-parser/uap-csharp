@@ -164,7 +164,7 @@ namespace UAParser
         }
     }
 
-    static class VersionString
+    internal static class VersionString
     {
         public static string Format(params string[] parts)
         {
@@ -257,11 +257,11 @@ namespace UAParser
     /// </summary>
     public sealed class Parser
     {
-        readonly Func<string, OS> _osParser;
-        readonly Func<string, Device> _deviceParser;
-        readonly Func<string, UserAgent> _userAgentParser;
+        private readonly Func<string, OS> _osParser;
+        private readonly Func<string, Device> _deviceParser;
+        private readonly Func<string, UserAgent> _userAgentParser;
 
-        Parser(MinimalYamlParser yamlParser)
+        private Parser(MinimalYamlParser yamlParser)
         {
             const string other = "Other";
 
@@ -270,7 +270,7 @@ namespace UAParser
             _deviceParser = CreateParser(Read(yamlParser.ReadMapping("device_parsers"), Config.DeviceSelector), new Device(other, string.Empty, string.Empty));
         }
 
-        static IEnumerable<T> Read<T>(IEnumerable<Dictionary<string, string>> entries, Func<Func<string, string>, T> selector)
+        private static IEnumerable<T> Read<T>(IEnumerable<Dictionary<string, string>> entries, Func<Func<string, string>, T> selector)
         {
             return from cm in entries select selector(cm.Find);
         }
@@ -366,7 +366,7 @@ namespace UAParser
                 return Parsers.Device(regex, device, brand, model);
             }
 
-            static Regex Regex(Func<string, string> indexer, string key, string regexFlag = null)
+            private static Regex Regex(Func<string, string> indexer, string key, string regexFlag = null)
             {
                 var pattern = indexer("regex");
                 if (pattern == null)
@@ -384,12 +384,14 @@ namespace UAParser
                 // startup time
                  RegexOptions options = RegexOptions.None;
                 if ("i".Equals(regexFlag))
+                {
                     options |= RegexOptions.IgnoreCase;
+                }
                 return new Regex(pattern, options);
             }
         }
-        
-        static class Parsers
+
+        private static class Parsers
         {
             // ReSharper disable once InconsistentNaming
             public static Func<string, OS> OS(Regex regex, string osReplacement, string v1Replacement, string v2Replacement, string v3Replacement, string v4Replacement)
@@ -419,12 +421,12 @@ namespace UAParser
                                      select new UserAgent(family, v1, v2, v3));
             }
 
-            static Func<Match, IEnumerator<int>, string> Replace(string replacement)
+            private static Func<Match, IEnumerator<int>, string> Replace(string replacement)
             {
                 return replacement != null ? Select(_ => replacement) : Select();
             }
 
-            static Func<Match, IEnumerator<int>, string> Replace(
+            private static Func<Match, IEnumerator<int>, string> Replace(
                 string replacement, string token)
             {
                 return replacement != null && replacement.Contains(token)
