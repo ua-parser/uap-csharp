@@ -17,20 +17,16 @@
 //
 #endregion
 
-using System.Security.Policy;
+using System.Reflection;
 
 namespace UAParser
 {
-    #region Imports
-
     using System;
     using System.Collections.Generic;
     using System.IO;
     using System.Linq;
     using System.Text.RegularExpressions;
     
-    #endregion
-
     /// <summary>
     /// Represents the physical device the user agent is using
     /// </summary>
@@ -51,19 +47,20 @@ namespace UAParser
         /// <summary>
         /// Returns true if the device is likely to be a spider or a bot device
         /// </summary>
-        public bool IsSpider { get { return "Spider".Equals(Family, StringComparison.OrdinalIgnoreCase); } }
+        public bool IsSpider => "Spider".Equals(Family, StringComparison.OrdinalIgnoreCase);
+
         /// <summary>
         ///The brand of the device 
         /// </summary>
-        public string Brand { get; private set; }
+        public string Brand { get; }
         /// <summary>
         /// The family of the device, if available
         /// </summary>
-        public string Family { get; private set; }
+        public string Family { get; }
         /// <summary>
         /// The model of the device, if available
         /// </summary>
-        public string Model { get; private set; }
+        public string Model { get; }
 
         /// <summary>
         /// A readable description of the device
@@ -95,23 +92,23 @@ namespace UAParser
         /// <summary>
         /// The familiy of the OS
         /// </summary>
-        public string Family     { get; private set; }
+        public string Family     { get; }
         /// <summary>
         /// The major version of the OS, if available
         /// </summary>
-        public string Major      { get; private set; }
+        public string Major      { get; }
         /// <summary>
         /// The minor version of the OS, if available
         /// </summary>
-        public string Minor      { get; private set; }
+        public string Minor      { get; }
         /// <summary>
         /// The patch version of the OS, if available
         /// </summary>
-        public string Patch      { get; private set; }
+        public string Patch      { get; }
         /// <summary>
         /// The minor patch version of the OS, if available
         /// </summary>
-        public string PatchMinor { get; private set; }
+        public string PatchMinor { get; }
         /// <summary>
         /// A readable description of the OS
         /// </summary>
@@ -142,19 +139,19 @@ namespace UAParser
         /// <summary>
         /// The family of user agent
         /// </summary>
-        public string Family { get; private set; }
+        public string Family { get; }
         /// <summary>
         /// Major version of the user agent, if available
         /// </summary>
-        public string Major  { get; private set; }
+        public string Major  { get; }
         /// <summary>
         /// Minor version of the user agent, if available
         /// </summary>
-        public string Minor  { get; private set; }
+        public string Minor  { get; }
         /// <summary>
         /// Patch version of the user agent, if available
         /// </summary>
-        public string Patch  { get; private set; }
+        public string Patch  { get; }
 
         /// <summary>
         /// The user agent as a readbale string
@@ -167,7 +164,7 @@ namespace UAParser
         }
     }
 
-    static class VersionString
+    internal static class VersionString
     {
         public static string Format(params string[] parts)
         {
@@ -211,28 +208,28 @@ namespace UAParser
         /// <summary>
         /// The user agent string, the input for the UAParser
         /// </summary>
-        public string String { get; private set; }
+        public string String { get; }
         // ReSharper disable once InconsistentNaming
         /// <summary>
         /// The OS parsed from the user agent string
         /// </summary>
         // ReSharper disable once InconsistentNaming
-        public OS OS { get; private set; }
+        public OS OS { get; }
 
         /// <summary>
         /// The Device parsed from the user agent string
         /// </summary>
-        public Device Device { get; private set; }
+        public Device Device { get; }
         /// <summary>
         /// The User Agent parsed from the user agent string
         /// </summary>
-        public UserAgent UserAgent { get { return UA; } }
+        public UserAgent UserAgent => UA;
 
         // ReSharper disable once InconsistentNaming
         /// <summary>
         /// The User Agent parsed from the user agent string
         /// </summary>
-        public UserAgent UA { get; private set; }
+        public UserAgent UA { get; }
 
         /// <summary>
         /// Constructs an instance of the ClientInfo with results of the user agent string parsing 
@@ -251,8 +248,22 @@ namespace UAParser
         /// <returns></returns>
         public override string ToString()
         {
-            return string.Format("{0} {1} {2}", OS, Device, UA);
+            return $"{OS} {Device} {UA}";
         }
+    }
+
+    /// <summary>
+    /// Options available for the parser
+    /// </summary>
+    public sealed class ParserOptions
+    {
+#if REGEX_COMPILATION
+        /// <summary>
+        /// If true, will use compiled regular expressions for slower startup time
+        /// but higher throughput
+        /// </summary>
+        public bool UseCompiledRegex { get; set; }
+#endif
     }
 
     /// <summary>
@@ -260,21 +271,22 @@ namespace UAParser
     /// </summary>
     public sealed class Parser
     {
-        readonly Func<string, OS> _osParser;
-        readonly Func<string, Device> _deviceParser;
-        readonly Func<string, UserAgent> _userAgentParser;
+        private readonly Func<string, OS> _osParser;
+        private readonly Func<string, Device> _deviceParser;
+        private readonly Func<string, UserAgent> _userAgentParser;
 
-        Parser(MinimalYamlParser yamlParser)
+        private Parser(MinimalYamlParser yamlParser, ParserOptions options)
         {
             const string other = "Other";
-            var defaultDevice = new Device(other, "", "");
 
-            _userAgentParser = CreateParser(Read(yamlParser.ReadMapping("user_agent_parsers"), Config.UserAgent), new UserAgent(other, null, null, null));
-            _osParser = CreateParser(Read(yamlParser.ReadMapping("os_parsers"), Config.OS), new OS(other, null, null, null, null));
-            _deviceParser = CreateParser(Read(yamlParser.ReadMapping("device_parsers"), Config.Device), defaultDevice);
+            var config = new Config(options ?? new ParserOptions());
+
+            _userAgentParser = CreateParser(Read(yamlParser.ReadMapping("user_agent_parsers"), config.UserAgentSelector), new UserAgent(other, null, null, null));
+            _osParser = CreateParser(Read(yamlParser.ReadMapping("os_parsers"), config.OSSelector), new OS(other, null, null, null, null));
+            _deviceParser = CreateParser(Read(yamlParser.ReadMapping("device_parsers"), config.DeviceSelector), new Device(other, string.Empty, string.Empty));
         }
 
-        static IEnumerable<T> Read<T>(IEnumerable<Dictionary<string, string>> entries, Func<Func<string, string>, T> selector)
+        private static IEnumerable<T> Read<T>(IEnumerable<Dictionary<string, string>> entries, Func<Func<string, string>, T> selector)
         {
             return from cm in entries select selector(cm.Find);
         }
@@ -283,26 +295,25 @@ namespace UAParser
         /// Returns a <see cref="Parser"/> instance based on the regex definitions in a yaml string
         /// </summary>
         /// <param name="yaml">a string containing yaml definitions of reg-ex</param>
+        /// <param name="parserOptions">specifies the options for the parser</param>
         /// <returns>A <see cref="Parser"/> instance parsing user agent strings based on the regexes defined in the yaml string</returns>
-        public static Parser FromYaml(string yaml) { return new Parser(new MinimalYamlParser(yaml)); }
-        /// <summary>
-        /// Returns a <see cref="Parser"/> instance based on the information in a yaml file
-        /// </summary>
-        /// <param name="path">the path to a yaml file containing regex definitions</param>
-        /// <returns>A <see cref="Parser"/> instance parsing user agent strings based on the regexes defined in the yaml string</returns>
-        public static Parser FromYamlFile(string path) { return new Parser(new MinimalYamlParser(File.ReadAllText(path))); }
+        public static Parser FromYaml(string yaml, ParserOptions parserOptions = null)
+        {
+            return new Parser(new MinimalYamlParser(yaml), parserOptions);
+        }
+
         /// <summary>
         /// Returns a <see cref="Parser"/> instance based on the embedded regex definitions. 
-        /// <remarks>The embedded regex definitions may be outdated. Consider passing in external yaml definitions using <see cref="Parser.FromYaml"/> or
-        /// <see cref="Parser.FromYamlFile"/></remarks>
+        /// <remarks>The embedded regex definitions may be outdated. Consider passing in external yaml definitions using <see cref="Parser.FromYaml"/></remarks>
         /// </summary>
+        /// <param name="parserOptions">specifies the options for the parser</param>
         /// <returns></returns>
-        public static Parser GetDefault()
+        public static Parser GetDefault(ParserOptions parserOptions = null)
         {
-            using (var stream = typeof(Parser).Assembly.GetManifestResourceStream("UAParser.regexes.yaml"))
+            using (var stream = typeof(Parser).GetTypeInfo().Assembly.GetManifestResourceStream("UAParser.regexes.yaml"))
             // ReSharper disable once AssignNullToNotNullAttribute
             using (var reader = new StreamReader(stream))
-                return new Parser(new MinimalYamlParser(reader.ReadToEnd()));
+                return new Parser(new MinimalYamlParser(reader.ReadToEnd()), parserOptions);
         }
 
         /// <summary>
@@ -329,21 +340,28 @@ namespace UAParser
         /// </summary>
         public UserAgent ParseUserAgent(string uaString) { return _userAgentParser(uaString); }
 
-        static Func<string, T> CreateParser<T>(IEnumerable<Func<string, T>> parsers, T defaultValue) where T : class
+        private static Func<string, T> CreateParser<T>(IEnumerable<Func<string, T>> parsers, T defaultValue) where T : class
         {
             return CreateParser(parsers, defaultValue, t => t);
         }
 
-        static Func<string, TResult> CreateParser<T, TResult>(IEnumerable<Func<string, T>> parsers, T defaultValue, Func<T, TResult> selector) where T : class
+        private static Func<string, TResult> CreateParser<T, TResult>(IEnumerable<Func<string, T>> parsers, T defaultValue, Func<T, TResult> selector) where T : class
         {
-            parsers = parsers != null ? parsers.ToArray() : Enumerable.Empty<Func<string, T>>();
+            parsers = parsers?.ToArray() ?? Enumerable.Empty<Func<string, T>>();
             return ua => selector(parsers.Select(p => p(ua)).FirstOrDefault(m => m != null) ?? defaultValue);
         }
 
-        static class Config
+        private class Config
         {
+            private readonly ParserOptions _options;
+
+            internal Config(ParserOptions options)
+            {
+                _options = options;
+            }
+
             // ReSharper disable once InconsistentNaming
-            public static Func<string, OS> OS(Func<string, string> indexer)
+            public Func<string, OS> OSSelector(Func<string, string> indexer)
             {
                 var regex = Regex(indexer, "OS");
                 var os = indexer("os_replacement");
@@ -354,7 +372,7 @@ namespace UAParser
                 return Parsers.OS(regex, os, v1, v2, v3, v4);
             }
 
-            public static Func<string, UserAgent> UserAgent(Func<string, string> indexer)
+            public Func<string, UserAgent> UserAgentSelector(Func<string, string> indexer)
             {
                 var regex = Regex(indexer, "User agent");
                 var family = indexer("family_replacement");
@@ -364,7 +382,7 @@ namespace UAParser
                 return Parsers.UserAgent(regex, family, v1, v2, v3);
             }
 
-            public static Func<string, Device> Device(Func<string, string> indexer)
+            public Func<string, Device> DeviceSelector(Func<string, string> indexer)
             {
                 var regex = Regex(indexer, "Device", indexer("regex_flag"));
                 var device = indexer("device_replacement");
@@ -373,11 +391,11 @@ namespace UAParser
                 return Parsers.Device(regex, device, brand, model);
             }
 
-            static Regex Regex(Func<string, string> indexer, string key, string regexFlag = null)
+            private Regex Regex(Func<string, string> indexer, string key, string regexFlag = null)
             {
                 var pattern = indexer("regex");
                 if (pattern == null)
-                    throw new Exception(String.Format("{0} is missing regular expression specification.", key));
+                    throw new Exception($"{key} is missing regular expression specification.");
 
                 // Some expressions in the regex.yaml file causes parsing errors 
                 // in .NET such as the \_ token so need to alter them before 
@@ -391,12 +409,22 @@ namespace UAParser
                 // startup time
                  RegexOptions options = RegexOptions.None;
                 if ("i".Equals(regexFlag))
+                {
                     options |= RegexOptions.IgnoreCase;
+                }
+
+#if REGEX_COMPILATION
+                if (_options.UseCompiledRegex)
+                {
+                    options |= RegexOptions.Compiled;
+                }
+#endif
+
                 return new Regex(pattern, options);
             }
         }
-        
-        static class Parsers
+
+        private static class Parsers
         {
             // ReSharper disable once InconsistentNaming
             public static Func<string, OS> OS(Regex regex, string osReplacement, string v1Replacement, string v2Replacement, string v3Replacement, string v4Replacement)
@@ -426,12 +454,12 @@ namespace UAParser
                                      select new UserAgent(family, v1, v2, v3));
             }
 
-            static Func<Match, IEnumerator<int>, string> Replace(string replacement)
+            private static Func<Match, IEnumerator<int>, string> Replace(string replacement)
             {
                 return replacement != null ? Select(_ => replacement) : Select();
             }
 
-            static Func<Match, IEnumerator<int>, string> Replace(
+            private static Func<Match, IEnumerator<int>, string> Replace(
                 string replacement, string token)
             {
                 return replacement != null && replacement.Contains(token)
@@ -439,23 +467,22 @@ namespace UAParser
                      : Replace(replacement);
             }
 
-            private static readonly string[] AllTokens = new string[]
+            private static readonly string[] _allReplacementTokens = new string[]
             {
                 "$1","$2","$3","$4","$5","$6","$7","$8","$91",
             };
             
-            static Func<Match, IEnumerator<int>, string> ReplaceAll(
-                string replacement)
+            private static Func<Match, IEnumerator<int>, string> ReplaceAll(string replacement)
             {
                 if (replacement == null)
                     return Select();
 
-                Func<string, string, string, string> replaceFunction = (replacementString, matchedGroup, token) =>
+                string ReplaceFunction(string replacementString, string matchedGroup, string token)
                 {
                     return matchedGroup != null
                         ? replacementString.ReplaceFirstOccurence(token, matchedGroup)
                         : replacementString;
-                };
+                }
 
                 return (m, num) =>
                 {
@@ -463,18 +490,18 @@ namespace UAParser
                     if (finalString.Contains("$"))
                     {
                         var groups = m.Groups;
-                        for (int i = 0; i < AllTokens.Length; i++)
+                        for (int i = 0; i < _allReplacementTokens.Length; i++)
                         {
                             int tokenNumber = i + 1;
-                            string token = AllTokens[i];
-                            Group group;
+                            string token = _allReplacementTokens[i];
                             if (finalString.Contains(token))
                             {
                                 var replacementText = string.Empty;
+                                Group group;
                                 if (tokenNumber <= groups.Count && (group = groups[tokenNumber]).Success)
                                     replacementText = group.Value;
 
-                                finalString = replaceFunction(finalString, replacementText, token);
+                                finalString = ReplaceFunction(finalString, replacementText, token);
                             }
                             if (!finalString.Contains("$"))
                                 break;
@@ -484,9 +511,12 @@ namespace UAParser
                 };
             }
 
-            static Func<Match, IEnumerator<int>, string> Select() { return Select(v => v); }
+            private static Func<Match, IEnumerator<int>, string> Select()
+            {
+                return Select(v => v);
+            }
 
-            static Func<Match, IEnumerator<int>, T> Select<T>(Func<string, T> selector)
+            private static Func<Match, IEnumerator<int>, T> Select<T>(Func<string, T> selector)
             {
                 return (m, num) =>
                 {
@@ -497,7 +527,7 @@ namespace UAParser
                 };
             }
 
-            static Func<string, T> Create<T>(Regex regex, Func<Match, IEnumerator<int>, T> binder)
+            private static Func<string, T> Create<T>(Regex regex, Func<Match, IEnumerator<int>, T> binder)
             {
                 return input =>
                 {
@@ -507,7 +537,7 @@ namespace UAParser
                 };
             }
 
-            static IEnumerator<T> Generate<T>(T initial, Func<T, T> next)
+            private static IEnumerator<T> Generate<T>(T initial, Func<T, T> next)
             {
                 for (var state = initial; ; state = next(state))
                     yield return state;
@@ -516,7 +546,7 @@ namespace UAParser
         }
     }
 
-    static class RegexBinderBuilder
+    internal static class RegexBinderBuilder
     {
         public static Func<Match, IEnumerator<int>, TResult> SelectMany<T1, T2, TResult>(
             this Func<Match, IEnumerator<int>, T1> binder,
@@ -533,11 +563,11 @@ namespace UAParser
         }
     }
 
-    static class StringExtensions
+    internal static class StringExtensions
     {
         public static string ReplaceFirstOccurence(this string input, string search, string replacement)
         {
-            if (input == null) throw new ArgumentNullException("input");
+            if (input == null) throw new ArgumentNullException(nameof(input));
             var index = input.IndexOf(search, StringComparison.Ordinal);
             return index >= 0
                  ? input.Substring(0, index) + replacement + input.Substring(index + search.Length)
@@ -545,13 +575,12 @@ namespace UAParser
         }
     }
 
-    static class DictionaryExtensions
+    internal static class DictionaryExtensions
     {
         public static TValue Find<TKey, TValue>(this IDictionary<TKey, TValue> dictionary, TKey key)
         {
-            if (dictionary == null) throw new ArgumentNullException("dictionary");
-            TValue result;
-            return dictionary.TryGetValue(key, out result) ? result : default(TValue);
+            if (dictionary == null) throw new ArgumentNullException(nameof(dictionary));
+            return dictionary.TryGetValue(key, out var result) ? result : default(TValue);
         }
     }
 
@@ -564,35 +593,35 @@ namespace UAParser
     {
         internal class Mapping
         {
-            private Dictionary<string, string> m_lastEntry;
+            private Dictionary<string, string> _lastEntry;
 
             public Mapping()
             {
                 Sequences = new List<Dictionary<string, string>>();
             }
 
-            public List<Dictionary<string, string>> Sequences { get; private set; }
+            public List<Dictionary<string, string>> Sequences { get; }
 
             public void BeginSequence()
             {
-                m_lastEntry = new Dictionary<string, string>();
-                Sequences.Add(m_lastEntry);
+                _lastEntry = new Dictionary<string, string>();
+                Sequences.Add(_lastEntry);
             }
 
             public void AddToSequence(string key, string value)
             {
-                m_lastEntry[key] = value;
+                _lastEntry[key] = value;
             }
         }
 
-        private readonly Dictionary<string, Mapping> m_mappings = new Dictionary<string, Mapping>();
+        private readonly Dictionary<string, Mapping> _mappings = new Dictionary<string, Mapping>();
 
         public MinimalYamlParser(string yamlString)
         {
             ReadIntoMappingModel(yamlString);
         }
 
-        internal IDictionary<string, Mapping> Mappings { get { return m_mappings; } }
+        internal IDictionary<string, Mapping> Mappings => _mappings;
 
         private void ReadIntoMappingModel(string yamlInputString)
         {
@@ -617,7 +646,7 @@ namespace UAParser
                         throw new ArgumentException("YamlParsing: Expecting mapping entry to contain a ':', at line " + lineCount);
                     string name = line.Substring(0, indexOfMappingColon).Trim();
                     activeMapping = new Mapping();
-                    m_mappings.Add(name, activeMapping);
+                    _mappings.Add(name, activeMapping);
                     continue;
                 }
 
@@ -653,8 +682,7 @@ namespace UAParser
 
         public IEnumerable<Dictionary<string, string>> ReadMapping(string mappingName)
         {
-            Mapping mapping;
-            if (m_mappings.TryGetValue(mappingName, out mapping))
+            if (_mappings.TryGetValue(mappingName, out var mapping))
             {
                 foreach (var s in mapping.Sequences)
                 {
