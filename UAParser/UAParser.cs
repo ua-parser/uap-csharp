@@ -17,20 +17,16 @@
 //
 #endregion
 
-using System.Security.Policy;
+using System.Reflection;
 
 namespace UAParser
 {
-    #region Imports
-
     using System;
     using System.Collections.Generic;
     using System.IO;
     using System.Linq;
     using System.Text.RegularExpressions;
     
-    #endregion
-
     /// <summary>
     /// Represents the physical device the user agent is using
     /// </summary>
@@ -51,19 +47,20 @@ namespace UAParser
         /// <summary>
         /// Returns true if the device is likely to be a spider or a bot device
         /// </summary>
-        public bool IsSpider { get { return "Spider".Equals(Family, StringComparison.OrdinalIgnoreCase); } }
+        public bool IsSpider => "Spider".Equals(Family, StringComparison.OrdinalIgnoreCase);
+
         /// <summary>
         ///The brand of the device 
         /// </summary>
-        public string Brand { get; private set; }
+        public string Brand { get; }
         /// <summary>
         /// The family of the device, if available
         /// </summary>
-        public string Family { get; private set; }
+        public string Family { get; }
         /// <summary>
         /// The model of the device, if available
         /// </summary>
-        public string Model { get; private set; }
+        public string Model { get; }
 
         /// <summary>
         /// A readable description of the device
@@ -95,23 +92,23 @@ namespace UAParser
         /// <summary>
         /// The familiy of the OS
         /// </summary>
-        public string Family     { get; private set; }
+        public string Family     { get; }
         /// <summary>
         /// The major version of the OS, if available
         /// </summary>
-        public string Major      { get; private set; }
+        public string Major      { get; }
         /// <summary>
         /// The minor version of the OS, if available
         /// </summary>
-        public string Minor      { get; private set; }
+        public string Minor      { get; }
         /// <summary>
         /// The patch version of the OS, if available
         /// </summary>
-        public string Patch      { get; private set; }
+        public string Patch      { get; }
         /// <summary>
         /// The minor patch version of the OS, if available
         /// </summary>
-        public string PatchMinor { get; private set; }
+        public string PatchMinor { get; }
         /// <summary>
         /// A readable description of the OS
         /// </summary>
@@ -142,19 +139,19 @@ namespace UAParser
         /// <summary>
         /// The family of user agent
         /// </summary>
-        public string Family { get; private set; }
+        public string Family { get; }
         /// <summary>
         /// Major version of the user agent, if available
         /// </summary>
-        public string Major  { get; private set; }
+        public string Major  { get; }
         /// <summary>
         /// Minor version of the user agent, if available
         /// </summary>
-        public string Minor  { get; private set; }
+        public string Minor  { get; }
         /// <summary>
         /// Patch version of the user agent, if available
         /// </summary>
-        public string Patch  { get; private set; }
+        public string Patch  { get; }
 
         /// <summary>
         /// The user agent as a readbale string
@@ -211,28 +208,28 @@ namespace UAParser
         /// <summary>
         /// The user agent string, the input for the UAParser
         /// </summary>
-        public string String { get; private set; }
+        public string String { get; }
         // ReSharper disable once InconsistentNaming
         /// <summary>
         /// The OS parsed from the user agent string
         /// </summary>
         // ReSharper disable once InconsistentNaming
-        public OS OS { get; private set; }
+        public OS OS { get; }
 
         /// <summary>
         /// The Device parsed from the user agent string
         /// </summary>
-        public Device Device { get; private set; }
+        public Device Device { get; }
         /// <summary>
         /// The User Agent parsed from the user agent string
         /// </summary>
-        public UserAgent UserAgent { get { return UA; } }
+        public UserAgent UserAgent => UA;
 
         // ReSharper disable once InconsistentNaming
         /// <summary>
         /// The User Agent parsed from the user agent string
         /// </summary>
-        public UserAgent UA { get; private set; }
+        public UserAgent UA { get; }
 
         /// <summary>
         /// Constructs an instance of the ClientInfo with results of the user agent string parsing 
@@ -251,7 +248,7 @@ namespace UAParser
         /// <returns></returns>
         public override string ToString()
         {
-            return string.Format("{0} {1} {2}", OS, Device, UA);
+            return $"{OS} {Device} {UA}";
         }
     }
 
@@ -285,21 +282,15 @@ namespace UAParser
         /// <param name="yaml">a string containing yaml definitions of reg-ex</param>
         /// <returns>A <see cref="Parser"/> instance parsing user agent strings based on the regexes defined in the yaml string</returns>
         public static Parser FromYaml(string yaml) { return new Parser(new MinimalYamlParser(yaml)); }
-        /// <summary>
-        /// Returns a <see cref="Parser"/> instance based on the information in a yaml file
-        /// </summary>
-        /// <param name="path">the path to a yaml file containing regex definitions</param>
-        /// <returns>A <see cref="Parser"/> instance parsing user agent strings based on the regexes defined in the yaml string</returns>
-        public static Parser FromYamlFile(string path) { return new Parser(new MinimalYamlParser(File.ReadAllText(path))); }
+
         /// <summary>
         /// Returns a <see cref="Parser"/> instance based on the embedded regex definitions. 
-        /// <remarks>The embedded regex definitions may be outdated. Consider passing in external yaml definitions using <see cref="Parser.FromYaml"/> or
-        /// <see cref="Parser.FromYamlFile"/></remarks>
+        /// <remarks>The embedded regex definitions may be outdated. Consider passing in external yaml definitions using <see cref="Parser.FromYaml"/></remarks>
         /// </summary>
         /// <returns></returns>
         public static Parser GetDefault()
         {
-            using (var stream = typeof(Parser).Assembly.GetManifestResourceStream("UAParser.regexes.yaml"))
+            using (var stream = typeof(Parser).GetTypeInfo().Assembly.GetManifestResourceStream("UAParser.regexes.yaml"))
             // ReSharper disable once AssignNullToNotNullAttribute
             using (var reader = new StreamReader(stream))
                 return new Parser(new MinimalYamlParser(reader.ReadToEnd()));
@@ -336,7 +327,7 @@ namespace UAParser
 
         static Func<string, TResult> CreateParser<T, TResult>(IEnumerable<Func<string, T>> parsers, T defaultValue, Func<T, TResult> selector) where T : class
         {
-            parsers = parsers != null ? parsers.ToArray() : Enumerable.Empty<Func<string, T>>();
+            parsers = parsers?.ToArray() ?? Enumerable.Empty<Func<string, T>>();
             return ua => selector(parsers.Select(p => p(ua)).FirstOrDefault(m => m != null) ?? defaultValue);
         }
 
@@ -377,7 +368,7 @@ namespace UAParser
             {
                 var pattern = indexer("regex");
                 if (pattern == null)
-                    throw new Exception(String.Format("{0} is missing regular expression specification.", key));
+                    throw new Exception($"{key} is missing regular expression specification.");
 
                 // Some expressions in the regex.yaml file causes parsing errors 
                 // in .NET such as the \_ token so need to alter them before 
@@ -571,7 +562,7 @@ namespace UAParser
                 Sequences = new List<Dictionary<string, string>>();
             }
 
-            public List<Dictionary<string, string>> Sequences { get; private set; }
+            public List<Dictionary<string, string>> Sequences { get; }
 
             public void BeginSequence()
             {
@@ -592,7 +583,7 @@ namespace UAParser
             ReadIntoMappingModel(yamlString);
         }
 
-        internal IDictionary<string, Mapping> Mappings { get { return m_mappings; } }
+        internal IDictionary<string, Mapping> Mappings => m_mappings;
 
         private void ReadIntoMappingModel(string yamlInputString)
         {
