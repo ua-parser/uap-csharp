@@ -429,11 +429,11 @@ namespace UAParser
             // ReSharper disable once InconsistentNaming
             public static Func<string, OS> OS(Regex regex, string osReplacement, string v1Replacement, string v2Replacement, string v3Replacement, string v4Replacement)
             {
-                return Create(regex, from family in Replace(osReplacement, "$1")
-                                     from v1 in Replace(v1Replacement, "$2")
-                                     from v2 in Replace(v2Replacement, "$3")
-                                     from v3 in Replace(v3Replacement, "$4")
-                                     from v4 in Replace(v4Replacement, "$5")
+                return Create(regex, from family in Replace(osReplacement)
+                                     from v1 in ReplaceOS(v1Replacement, "$1")
+                                     from v2 in ReplaceOS(v2Replacement, "$2")
+                                     from v3 in ReplaceOS(v3Replacement, "$3")
+                                     from v4 in ReplaceOS(v4Replacement, "$4")
                                      select new OS(family, v1, v2, v3, v4));
             }
 
@@ -447,10 +447,10 @@ namespace UAParser
 
             public static Func<string, UserAgent> UserAgent(Regex regex, string familyReplacement, string majorReplacement, string minorReplacement, string patchReplacement)
             {
-                return Create(regex, from family in Replace(familyReplacement, "$1")
-                                     from v1 in Replace(majorReplacement, "$2")
-                                     from v2 in Replace(minorReplacement, "$3")
-                                     from v3 in Replace(patchReplacement, "$4")
+                return Create(regex, from family in ReplaceUA(familyReplacement, "$1")
+                                     from v1 in ReplaceUA(majorReplacement, "$2")
+                                     from v2 in ReplaceUA(minorReplacement, "$3")
+                                     from v3 in ReplaceUA(patchReplacement, "$4")
                                      select new UserAgent(family, v1, v2, v3));
             }
 
@@ -459,12 +459,47 @@ namespace UAParser
                 return replacement != null ? Select(_ => replacement) : Select();
             }
 
-            private static Func<Match, IEnumerator<int>, string> Replace(
+            private static Func<Match, IEnumerator<int>, string> ReplaceUA(
                 string replacement, string token)
             {
                 return replacement != null && replacement.Contains(token)
                      ? Select(s => s != null ? replacement.ReplaceFirstOccurence(token, s) : replacement)
                      : Replace(replacement);
+            }
+
+            private static Func<Match, IEnumerator<int>, string> ReplaceOS(
+                string replacement, string token)
+            {
+                if (replacement == null || !replacement.Contains(token))
+                    return Replace(replacement);
+
+                string ReplaceFunction(string replacementString, string matchedGroup)
+                {
+                    return matchedGroup != null
+                        ? replacementString.ReplaceFirstOccurence(token, matchedGroup)
+                        : replacementString;
+                }
+
+                return (m, num) =>
+                {
+                    var finalString = replacement;
+                    if (finalString.Contains("$"))
+                    {
+                        var groups = m.Groups;
+                        int position = int.Parse(finalString.Substring(1, finalString.Length - 1));
+                        var groupCount = groups.Count;
+                        if (finalString.Contains(token))
+                        {
+                            var replacementText = string.Empty;
+                            Group group;
+                            if (position <= groups.Count && (group = groups[position]).Success)
+                                replacementText = group.Value;
+
+                            finalString = ReplaceFunction(finalString, replacementText);
+                        }
+                    }
+                    return finalString;
+                };
             }
 
             private static readonly string[] _allReplacementTokens = new string[]
