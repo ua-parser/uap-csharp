@@ -76,7 +76,7 @@ namespace UAParser.Tests
         {
           tc.Verify(clientInfo);
         }
-        catch (AssertException ex)
+        catch (AssertActualExpectedException ex)
         {
           sb.AppendLine("testcase "+(i+1)+": " +ex.Message);
         }
