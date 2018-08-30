@@ -454,17 +454,19 @@ namespace UAParser
                                      select new UserAgent(family, v1, v2, v3));
             }
 
-            private static Func<Match, IEnumerator<int>, string> Replace(string replacement)
-            {
-                return replacement != null ? Select(_ => replacement) : Select();
-            }
-
             private static Func<Match, IEnumerator<int>, string> Replace(
                 string replacement, string token)
             {
-                return replacement != null && replacement.Contains(token)
-                     ? Select(s => s != null ? replacement.ReplaceFirstOccurence(token, s) : replacement)
-                     : Replace(replacement);
+                if (string.IsNullOrEmpty(replacement))
+                {
+                    return Select();
+                }
+
+                return replacement.StartsWith("$")
+                       ? ReplaceAll(replacement)
+                       : replacement.Contains(token)
+                           ? Select(s => s != null ? replacement.ReplaceFirstOccurence(token, s) : replacement)
+                           : Select(_ => replacement);
             }
 
             private static readonly string[] _allReplacementTokens = new string[]

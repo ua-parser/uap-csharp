@@ -33,7 +33,7 @@ namespace UAParser.Tests
             {
                 if (s == null)
                     throw new InvalidOperationException("Could not locate an embedded test resource with name: " + name);
-                using (StreamReader sr = new StreamReader(s, Encoding.ASCII))
+                using (StreamReader sr = new StreamReader(s, Encoding.UTF8))
                 {
                     return sr.ReadToEnd();
                 }
