@@ -404,10 +404,10 @@ namespace UAParser
                 if (pattern.IndexOf(@"\_", StringComparison.Ordinal) >= 0)
                     pattern = pattern.Replace(@"\_", "_");
 
-                // TODO: potentially allow parser to specify e.g. to use 
-                // compiled regular expressions which are faster but increase 
-                // startup time
-                 RegexOptions options = RegexOptions.None;
+                //Singleline: User agent strings do not contain newline characters. RegexOptions.Singleline improves performance.
+                //CultureInvariant: The interpretation of a user agent never depends on the current locale.
+                RegexOptions options = RegexOptions.Singleline | RegexOptions.CultureInvariant;
+
                 if ("i".Equals(regexFlag))
                 {
                     options |= RegexOptions.IgnoreCase;
