@@ -25,6 +25,10 @@
     <PropertyGroup Condition="'$(TargetFramework)'=='netstandard1.3'">
         <DefineConstants>REGEX_COMPILATION</DefineConstants>
     </PropertyGroup>
+	
+	<PropertyGroup Condition="'$(TargetFramework)'=='netstandard1.6'">
+        <DefineConstants>REGEX_COMPILATION</DefineConstants>
+    </PropertyGroup>
 
     <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
         <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
