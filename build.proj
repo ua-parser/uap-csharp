@@ -8,8 +8,6 @@
         <ThePlatform>Any CPU</ThePlatform>
         <PathToNUnitExecutable>"$(MSBuildProjectDirectory)/tools/nunit/nunit-console.exe"</PathToNUnitExecutable>
         <PathToXUnitExecutable>"$(MSBuildProjectDirectory)/packages/xunit.runner.console.2.4.1/tools/net46/xunit.console.exe"</PathToXUnitExecutable>
-
-        <PathToNuGetExecutable>"$(MSBuildProjectDirectory)/.nuget/nuget.exe"</PathToNuGetExecutable>
     </PropertyGroup>
 
 
@@ -21,11 +19,6 @@
         <Exec Command="$(PathToXUnitExecutable) UAParser.Tests\bin\$(TheConfiguration)\UAParser.Tests.dll" />
     </Target>
 
-    <Target Name="CreateNuGet" DependsOnTargets="Compile;RunTests">
-        <Exec Command="$(PathToNuGetExecutable) pack UAParser.csproj -Properties Configuration=$(TheConfiguration)"
-              WorkingDirectory="UAParser"/>
-    </Target>
-
-    <Target Name="All" DependsOnTargets="CreateNuGet" />
+    <Target Name="All" DependsOnTargets="Compile;RunTests" />
 
 </Project>
