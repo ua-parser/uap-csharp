@@ -7,7 +7,7 @@
         <TheConfiguration>Release</TheConfiguration>
         <ThePlatform>Any CPU</ThePlatform>
         <PathToNUnitExecutable>"$(MSBuildProjectDirectory)/tools/nunit/nunit-console.exe"</PathToNUnitExecutable>
-        <PathToXUnitExecutable>"$(MSBuildProjectDirectory)/packages/xunit.runner.console.2.1.0/tools/xunit.console.exe"</PathToXUnitExecutable>
+        <PathToXUnitExecutable>"$(MSBuildProjectDirectory)/packages/xunit.runner.console.2.4.1/tools/net46/xunit.console.exe"</PathToXUnitExecutable>
 
         <PathToNuGetExecutable>"$(MSBuildProjectDirectory)/.nuget/nuget.exe"</PathToNuGetExecutable>
     </PropertyGroup>
