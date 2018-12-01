@@ -1,1 +1,1 @@
-%SystemRoot%\Microsoft.Net\Framework\v4.0.30319\msbuild.exe build.proj /t:All
+"%ProgramFiles(x86)%\Microsoft Visual Studio\2017\Professional\MSBuild\15.0\Bin\msbuild.exe" build.proj /t:All

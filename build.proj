@@ -1,13 +1,13 @@
-﻿<Project DefaultTargets="Compile"
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project
+    DefaultTargets="Compile"
     xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
 
     <PropertyGroup>
         <TheConfiguration>Release</TheConfiguration>
         <ThePlatform>Any CPU</ThePlatform>
         <PathToNUnitExecutable>"$(MSBuildProjectDirectory)/tools/nunit/nunit-console.exe"</PathToNUnitExecutable>
-        <PathToXUnitExecutable>"$(MSBuildProjectDirectory)/packages/xunit.runner.console.2.1.0/tools/xunit.console.exe"</PathToXUnitExecutable>
-
-        <PathToNuGetExecutable>"$(MSBuildProjectDirectory)/.nuget/nuget.exe"</PathToNuGetExecutable>
+        <PathToXUnitExecutable>"$(MSBuildProjectDirectory)/packages/xunit.runner.console.2.4.1/tools/net46/xunit.console.exe"</PathToXUnitExecutable>
     </PropertyGroup>
 
 
@@ -19,11 +19,6 @@
         <Exec Command="$(PathToXUnitExecutable) UAParser.Tests\bin\$(TheConfiguration)\UAParser.Tests.dll" />
     </Target>
 
-    <Target Name="CreateNuGet" DependsOnTargets="Compile;RunTests">
-        <Exec Command="$(PathToNuGetExecutable) pack UAParser.csproj -Properties Configuration=$(TheConfiguration)"
-              WorkingDirectory="UAParser"/>
-    </Target>
-
-    <Target Name="All" DependsOnTargets="CreateNuGet" />
+    <Target Name="All" DependsOnTargets="Compile;RunTests" />
 
 </Project>

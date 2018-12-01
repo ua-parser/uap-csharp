@@ -10,7 +10,6 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Items", "Items", "{AB82C54B
 		build.bat = build.bat
 		build.proj = build.proj
 		PublicKey.snk = PublicKey.snk
-		UAParser\UAParser.nuspec = UAParser\UAParser.nuspec
 	EndProjectSection
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "UAParser.Tests", "UAParser.Tests\UAParser.Tests.csproj", "{967089C7-1D9D-453E-AAA8-ED26BCECCE20}"
