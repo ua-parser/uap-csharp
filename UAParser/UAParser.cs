@@ -429,8 +429,8 @@ namespace UAParser
             // ReSharper disable once InconsistentNaming
             public static Func<string, OS> OS(Regex regex, string osReplacement, string v1Replacement, string v2Replacement, string v3Replacement, string v4Replacement)
             {
-                // special handling for when the v1Replacement needs specifies that it wants to match the 
-                // first group in the regex, then the order of the replacements needs to be swapped around
+                // special handling for when the v1Replacement specifies that it wants to match the 
+                // first group in the regex ($1), then the order of the replacements needs to be swapped around
                 // since it is this order that dictates which regex group match it can access
                 if (v1Replacement == "$1")
                 {
