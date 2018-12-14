@@ -429,11 +429,21 @@ namespace UAParser
             // ReSharper disable once InconsistentNaming
             public static Func<string, OS> OS(Regex regex, string osReplacement, string v1Replacement, string v2Replacement, string v3Replacement, string v4Replacement)
             {
-                // special handling for when the v1Replacement specifies that it wants to match the 
-                // first group in the regex ($1), then the order of the replacements needs to be swapped around
-                // since it is this order that dictates which regex group match it can access
+                // For variable replacements to be consistent the order of the linq statements are important ($1
+                // is only available to the first 'from X in Replace(..)' and so forth) so a a bit of conditional
+                // is required to get the creations to work. This is backed by unit tests
                 if (v1Replacement == "$1")
                 {
+                    if (v2Replacement == "$2")
+                    {
+                        return Create(regex, from v1 in Replace(v1Replacement, "$1")
+                            from v2 in Replace(v2Replacement, "$2")
+                            from v3 in Replace(v3Replacement, "$3")
+                            from v4 in Replace(v4Replacement, "$4")
+                            from family in Replace(osReplacement, "$5")
+                            select new OS(family, v1, v2, v3, v4));
+                    }
+
                     return Create(regex, from v1 in Replace(v1Replacement, "$1")
                         from family in Replace(osReplacement, "$2")
                         from v2 in Replace(v2Replacement, "$3")
