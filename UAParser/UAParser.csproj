@@ -1,4 +1,4 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 
     <PropertyGroup>
         <TargetFrameworks>netstandard1.0;netstandard1.3;netstandard1.6</TargetFrameworks>
@@ -13,7 +13,7 @@
         <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
         <Version>3.1.0</Version>
         <PackageProjectUrl>https://github.com/ua-parser/uap-csharp</PackageProjectUrl>
-        <PackageLicenseUrl>https://github.com/ua-parser/uap-csharp/blob/master/LICENSE</PackageLicenseUrl>
+        <PackageLicenseExpression>Apache-2.0</PackageLicenseExpression>
         <RepositoryUrl>https://github.com/ua-parser/uap-csharp</RepositoryUrl>
         <AssemblyVersion>3.1.0.0</AssemblyVersion>
         <FileVersion>3.1.0.0</FileVersion>
