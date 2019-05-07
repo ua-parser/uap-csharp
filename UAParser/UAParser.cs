@@ -311,7 +311,11 @@ namespace UAParser
         /// <returns></returns>
         public static Parser GetDefault(ParserOptions parserOptions = null)
         {
-            using (var stream = typeof(Parser).GetTypeInfo().Assembly.GetManifestResourceStream("UAParser.regexes.yaml"))
+            using (var stream = typeof(Parser)
+#if INTROSPECTION_EXTENSIONS
+                                    .GetTypeInfo()
+#endif
+                                    .Assembly.GetManifestResourceStream("UAParser.regexes.yaml"))
             // ReSharper disable once AssignNullToNotNullAttribute
             using (var reader = new StreamReader(stream))
                 return new Parser(new MinimalYamlParser(reader.ReadToEnd()), parserOptions);
