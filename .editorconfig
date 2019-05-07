@@ -1,0 +1,20 @@
+# http://editorconfig.org/
+
+root = true
+
+[*]
+indent_style = space
+insert_final_newline = true
+trim_trailing_whitespace = true
+
+[*.{sln}]
+indent_style = tab
+
+[*.{csproj,vbproj,vcxproj,vcxproj.filters,proj,projitems,shproj}]
+indent_size = 2
+
+[*.cs]
+charset = utf-8
+indent_style = space
+indent_size = 4
+max_line_length = 100

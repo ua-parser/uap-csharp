@@ -1,4 +1,4 @@
-﻿namespace UAParser.ConsoleApp
+namespace UAParser.ConsoleApp
 {
   using System;
   using System.Linq;
@@ -33,8 +33,8 @@
 Copyright 2015 " + "S\u00f8ren Enem\u00e6rke" + @"
 https://github.com/tobie/ua-parser
 
-This application accepts user agent strings (one per line) from standard 
-input, parses them and then emits the identified agent, operating system and 
+This application accepts user agent strings (one per line) from standard
+input, parses them and then emits the identified agent, operating system and
 device for each string.");
     }
   }
