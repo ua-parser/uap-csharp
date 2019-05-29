@@ -7,6 +7,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "UAParser.ConsoleApp", "UAPa
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Items", "Items", "{AB82C54B-9D7F-4FD6-B3F3-05589F11E4C2}"
 	ProjectSection(SolutionItems) = preProject
+		.editorconfig = .editorconfig
 		build.bat = build.bat
 		build.proj = build.proj
 		PublicKey.snk = PublicKey.snk
