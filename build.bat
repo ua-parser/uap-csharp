@@ -1,1 +1,1 @@
-"%ProgramFiles(x86)%\Microsoft Visual Studio\2017\Professional\MSBuild\15.0\Bin\msbuild.exe" build.proj /t:All
+call "%~dp0msbuild" build.proj /t:All

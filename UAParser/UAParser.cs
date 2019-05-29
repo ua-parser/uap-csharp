@@ -1,14 +1,14 @@
 #region Apache License, Version 2.0
-// 
+//
 // Copyright 2014 Atif Aziz
 // Portions Copyright 2012 Søren Enemærke
-// 
+//
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
 // You may obtain a copy of the License at
-// 
+//
 //     http://www.apache.org/licenses/LICENSE-2.0
-// 
+//
 // Unless required by applicable law or agreed to in writing, software
 // distributed under the License is distributed on an "AS IS" BASIS,
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -26,7 +26,7 @@ namespace UAParser
     using System.IO;
     using System.Linq;
     using System.Text.RegularExpressions;
-    
+
     /// <summary>
     /// Represents the physical device the user agent is using
     /// </summary>
@@ -50,7 +50,7 @@ namespace UAParser
         public bool IsSpider => "Spider".Equals(Family, StringComparison.OrdinalIgnoreCase);
 
         /// <summary>
-        ///The brand of the device 
+        ///The brand of the device
         /// </summary>
         public string Brand { get; }
         /// <summary>
@@ -126,7 +126,7 @@ namespace UAParser
     public sealed class UserAgent
     {
         /// <summary>
-        /// Construct a UserAgent instance 
+        /// Construct a UserAgent instance
         /// </summary>
         public UserAgent(string family, string major, string minor, string patch)
         {
@@ -173,7 +173,7 @@ namespace UAParser
     }
 
     /// <summary>
-    /// Representing the parse results. Structure of this class aligns with the 
+    /// Representing the parse results. Structure of this class aligns with the
     /// ua-parser-output WebIDL structure defined in this document: https://github.com/ua-parser/uap-core/blob/master/docs/specification.md
     /// </summary>
     public interface IUAParserOutput
@@ -223,6 +223,7 @@ namespace UAParser
         /// <summary>
         /// The User Agent parsed from the user agent string
         /// </summary>
+        [Obsolete("Mirrors the value of the UA property. Will be removed in future versions")]
         public UserAgent UserAgent => UA;
 
         // ReSharper disable once InconsistentNaming
@@ -232,7 +233,7 @@ namespace UAParser
         public UserAgent UA { get; }
 
         /// <summary>
-        /// Constructs an instance of the ClientInfo with results of the user agent string parsing 
+        /// Constructs an instance of the ClientInfo with results of the user agent string parsing
         /// </summary>
         public ClientInfo(string inputString, OS os, Device device, UserAgent userAgent)
         {
@@ -303,7 +304,7 @@ namespace UAParser
         }
 
         /// <summary>
-        /// Returns a <see cref="Parser"/> instance based on the embedded regex definitions. 
+        /// Returns a <see cref="Parser"/> instance based on the embedded regex definitions.
         /// <remarks>The embedded regex definitions may be outdated. Consider passing in external yaml definitions using <see cref="Parser.FromYaml"/></remarks>
         /// </summary>
         /// <param name="parserOptions">specifies the options for the parser</param>
@@ -397,8 +398,8 @@ namespace UAParser
                 if (pattern == null)
                     throw new Exception($"{key} is missing regular expression specification.");
 
-                // Some expressions in the regex.yaml file causes parsing errors 
-                // in .NET such as the \_ token so need to alter them before 
+                // Some expressions in the regex.yaml file causes parsing errors
+                // in .NET such as the \_ token so need to alter them before
                 // proceeding.
 
                 if (pattern.IndexOf(@"\_", StringComparison.Ordinal) >= 0)
@@ -494,7 +495,7 @@ namespace UAParser
             {
                 "$1","$2","$3","$4","$5","$6","$7","$8","$91",
             };
-            
+
             private static Func<Match, IEnumerator<int>, string> ReplaceAll(string replacement)
             {
                 if (replacement == null)

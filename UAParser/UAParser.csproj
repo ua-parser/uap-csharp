@@ -1,52 +1,52 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
-    <PropertyGroup>
-        <TargetFrameworks>netstandard1.0;netstandard1.3;netstandard1.6</TargetFrameworks>
-        <PackageId>UAParser</PackageId>
-        <Authors>enemaerke</Authors>
-        <Title>User Agent Parser for .Net</Title>
-        <Description>Parsing useragent string. A .Net wrapper for the ua-parser library and its set of regular expressions</Description>
-        <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
-        <Copyright>Copyright 2018</Copyright>
-        <PackageTags>UAParser .Net UserAgent Parsing User Agent Parser</PackageTags>
-        <AssemblyName>UAParser</AssemblyName>
-        <RootNamespace>UAParser</RootNamespace>
-        <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
-        <Version>3.1.0</Version>
-        <PackageProjectUrl>https://github.com/ua-parser/uap-csharp</PackageProjectUrl>
-        <PackageLicenseExpression>Apache-2.0</PackageLicenseExpression>
-        <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
-        <RepositoryUrl>https://github.com/ua-parser/uap-csharp</RepositoryUrl>
-        <PackageDescription>A .net wrapper for the ua-parser library</PackageDescription>
-        <AssemblyVersion>3.1.0.0</AssemblyVersion>
-        <FileVersion>3.1.0.0</FileVersion>
-        <Company />
-        <SignAssembly>true</SignAssembly>
-        <AssemblyOriginatorKeyFile>../PublicKey.snk</AssemblyOriginatorKeyFile>
-    </PropertyGroup>
+  <PropertyGroup>
+    <TargetFrameworks>netstandard1.0;netstandard1.3;netstandard1.6</TargetFrameworks>
+    <PackageId>UAParser</PackageId>
+    <Authors>enemaerke</Authors>
+    <Title>User Agent Parser for .Net</Title>
+    <Description>Parsing useragent string. A .Net wrapper for the ua-parser library and its set of regular expressions</Description>
+    <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
+    <Copyright>Copyright 2018</Copyright>
+    <PackageTags>UAParser .Net UserAgent Parsing User Agent Parser</PackageTags>
+    <AssemblyName>UAParser</AssemblyName>
+    <RootNamespace>UAParser</RootNamespace>
+    <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+    <Version>3.1.0</Version>
+    <PackageProjectUrl>https://github.com/ua-parser/uap-csharp</PackageProjectUrl>
+    <PackageLicenseExpression>Apache-2.0</PackageLicenseExpression>
+    <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
+    <RepositoryUrl>https://github.com/ua-parser/uap-csharp</RepositoryUrl>
+    <PackageDescription>A .net wrapper for the ua-parser library</PackageDescription>
+    <AssemblyVersion>3.1.0.0</AssemblyVersion>
+    <FileVersion>3.1.0.0</FileVersion>
+    <Company />
+    <SignAssembly>true</SignAssembly>
+    <AssemblyOriginatorKeyFile>../PublicKey.snk</AssemblyOriginatorKeyFile>
+  </PropertyGroup>
 
-    <PropertyGroup Condition="'$(TargetFramework)'=='netstandard1.3'">
-        <DefineConstants>REGEX_COMPILATION</DefineConstants>
-    </PropertyGroup>
-	
-	<PropertyGroup Condition="'$(TargetFramework)'=='netstandard1.6'">
-        <DefineConstants>REGEX_COMPILATION</DefineConstants>
-    </PropertyGroup>
+  <PropertyGroup Condition="'$(TargetFramework)'=='netstandard1.3'">
+    <DefineConstants>REGEX_COMPILATION</DefineConstants>
+  </PropertyGroup>
 
-    <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
-        <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
-        <WarningsAsErrors />
-        <DocumentationFile>bin\Debug\$(TargetFramework)\UAParser.xml</DocumentationFile>
-    </PropertyGroup>
+  <PropertyGroup Condition="'$(TargetFramework)'=='netstandard1.6'">
+    <DefineConstants>REGEX_COMPILATION</DefineConstants>
+  </PropertyGroup>
 
-    <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
-        <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
-        <WarningsAsErrors />
-		<DocumentationFile>bin\Release\$(TargetFramework)\UAParser.xml</DocumentationFile>
-    </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
+    <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+    <WarningsAsErrors />
+    <DocumentationFile>bin\Debug\$(TargetFramework)\UAParser.xml</DocumentationFile>
+  </PropertyGroup>
 
-    <ItemGroup>
-        <EmbeddedResource Include="..\uap-core\regexes.yaml" Link="regexes.yaml" />
-    </ItemGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
+    <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+    <WarningsAsErrors />
+    <DocumentationFile>bin\Release\$(TargetFramework)\UAParser.xml</DocumentationFile>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <EmbeddedResource Include="..\uap-core\regexes.yaml" Link="regexes.yaml" />
+  </ItemGroup>
 
 </Project>

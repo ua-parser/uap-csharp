@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -58,7 +58,7 @@ namespace UAParser.Tests
       AssertMatch(Minor, clientInfo.OS.Minor, "Minor");
       AssertMatch(Patch, clientInfo.OS.Patch, "Patch");
       AssertMatch(PatchMinor, clientInfo.OS.PatchMinor, "PatchMinor");
-      
+
     }
   }
 
