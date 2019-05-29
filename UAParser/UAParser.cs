@@ -223,6 +223,7 @@ namespace UAParser
         /// <summary>
         /// The User Agent parsed from the user agent string
         /// </summary>
+        [Obsolete("Mirrors the value of the UA property. Will be removed in future versions")]
         public UserAgent UserAgent => UA;
 
         // ReSharper disable once InconsistentNaming
