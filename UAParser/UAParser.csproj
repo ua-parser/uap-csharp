@@ -1,13 +1,13 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFrameworks>netstandard1.0;netstandard1.3;netstandard1.6;net20</TargetFrameworks>
+    <TargetFrameworks>netstandard1.0;netstandard1.3;netstandard1.6;net20;netcoreapp2.0</TargetFrameworks>
     <PackageId>UAParser</PackageId>
     <Authors>enemaerke</Authors>
     <Title>User Agent Parser for .Net</Title>
     <Description>Parsing useragent string. A .Net wrapper for the ua-parser library and its set of regular expressions</Description>
     <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
-    <Copyright>Copyright 2018</Copyright>
+    <Copyright>Copyright 2019</Copyright>
     <PackageTags>UAParser .Net UserAgent Parsing User Agent Parser</PackageTags>
     <AssemblyName>UAParser</AssemblyName>
     <RootNamespace>UAParser</RootNamespace>
@@ -39,6 +39,10 @@
 
   <PropertyGroup Condition="'$(TargetFramework)'=='net20'">
     <DefineConstants>REGEX_COMPILATION</DefineConstants>
+  </PropertyGroup>
+  
+  <PropertyGroup Condition="'$(TargetFramework)'=='netcoreapp2.0'">
+    <DefineConstants>REGEX_COMPILATIONINTROSPECTION_EXTENSIONS</DefineConstants>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
