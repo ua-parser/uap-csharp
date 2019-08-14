@@ -42,7 +42,7 @@
   </PropertyGroup>
   
   <PropertyGroup Condition="'$(TargetFramework)'=='netcoreapp2.0'">
-    <DefineConstants>REGEX_COMPILATIONINTROSPECTION_EXTENSIONS</DefineConstants>
+    <DefineConstants>REGEX_COMPILATION;INTROSPECTION_EXTENSIONS</DefineConstants>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
