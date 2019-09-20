@@ -1,0 +1,9 @@
+﻿## This file contains regular expressions that should be vulnarable to long backtracking. Example taken from: https://docs.microsoft.com/en-us/dotnet/standard/base-types/backtracking-in-regular-expressions
+user_agent_parsers:
+  - regex: '(a+)+$'
+
+os_parsers:
+  - regex: '(a+)+$'
+
+device_parsers:
+  - regex: '(a+)+$'
