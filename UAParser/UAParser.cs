@@ -272,7 +272,7 @@ namespace UAParser
         /// serving as a fail safe for potential infinite backtracking. The default is
         /// set to Regex.InfiniteMatchTimeout
         /// </summary>
-        public TimeSpan MaxTimeOut { get; set; } = Regex.InfiniteMatchTimeout;
+        public TimeSpan MatchTimeOut { get; set; } = Regex.InfiniteMatchTimeout;
 #endif
     }
 
@@ -440,7 +440,7 @@ namespace UAParser
 
 #if REGEX_MATCHTIMEOUT
 
-                return new Regex(pattern, options, _options.MaxTimeOut);
+                return new Regex(pattern, options, _options.MatchTimeOut);
 #else
                 return new Regex(pattern, options);
 #endif
