@@ -261,9 +261,18 @@ namespace UAParser
 #if REGEX_COMPILATION
         /// <summary>
         /// If true, will use compiled regular expressions for slower startup time
-        /// but higher throughput
+        /// but higher throughput. The default is false.
         /// </summary>
         public bool UseCompiledRegex { get; set; }
+#endif
+
+#if REGEX_MATCHTIMEOUT
+        /// <summary>
+        /// Allows for specifying the maximum time spent on regular expressions,
+        /// serving as a fail safe for potential infinite backtracking. The default is
+        /// set to Regex.InfiniteMatchTimeout
+        /// </summary>
+        public TimeSpan MaxTimeOut { get; set; } = Regex.InfiniteMatchTimeout;
 #endif
     }
 
@@ -272,19 +281,23 @@ namespace UAParser
     /// </summary>
     public sealed class Parser
     {
+        /// <summary>
+        /// The constant string value used to signal an unknown match for a given property or value. This
+        /// is by default the string "Other".
+        /// </summary>
+        public const string Other = "Other";
+
         private readonly Func<string, OS> _osParser;
         private readonly Func<string, Device> _deviceParser;
         private readonly Func<string, UserAgent> _userAgentParser;
 
         private Parser(MinimalYamlParser yamlParser, ParserOptions options)
         {
-            const string other = "Other";
-
             var config = new Config(options ?? new ParserOptions());
 
-            _userAgentParser = CreateParser(Read(yamlParser.ReadMapping("user_agent_parsers"), config.UserAgentSelector), new UserAgent(other, null, null, null));
-            _osParser = CreateParser(Read(yamlParser.ReadMapping("os_parsers"), config.OSSelector), new OS(other, null, null, null, null));
-            _deviceParser = CreateParser(Read(yamlParser.ReadMapping("device_parsers"), config.DeviceSelector), new Device(other, string.Empty, string.Empty));
+            _userAgentParser = CreateParser(Read(yamlParser.ReadMapping("user_agent_parsers"), config.UserAgentSelector), new UserAgent(Other, null, null, null));
+            _osParser = CreateParser(Read(yamlParser.ReadMapping("os_parsers"), config.OSSelector), new OS(Other, null, null, null, null));
+            _deviceParser = CreateParser(Read(yamlParser.ReadMapping("device_parsers"), config.DeviceSelector), new Device(Other, string.Empty, string.Empty));
         }
 
         private static IEnumerable<T> Read<T>(IEnumerable<Dictionary<string, string>> entries, Func<Func<string, string>, T> selector)
@@ -425,7 +438,12 @@ namespace UAParser
                 }
 #endif
 
+#if REGEX_MATCHTIMEOUT
+
+                return new Regex(pattern, options, _options.MaxTimeOut);
+#else
                 return new Regex(pattern, options);
+#endif
             }
         }
 
@@ -559,10 +577,24 @@ namespace UAParser
             {
                 return input =>
                 {
+#if REGEX_MATCHTIMEOUT
+                    try
+                    {
+                        var m = regex.Match(input);
+                        var num = Generate(1, n => n + 1);
+                        return m.Success ? binder(m, num) : default(T);
+                    }
+                    catch (RegexMatchTimeoutException)
+                    {
+                        // we'll simply swallow this exception and return the default (non-matched)
+                        return default(T);
+                    }
+#else
                     var m = regex.Match(input);
                     var num = Generate(1, n => n + 1);
                     return m.Success ? binder(m, num) : default(T);
-                };
+#endif
+                    };
             }
 
             private static IEnumerator<T> Generate<T>(T initial, Func<T, T> next)

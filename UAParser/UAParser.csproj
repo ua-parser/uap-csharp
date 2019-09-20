@@ -26,15 +26,15 @@
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(TargetFramework)'=='netstandard1.0'">
-    <DefineConstants>INTROSPECTION_EXTENSIONS</DefineConstants>
+    <DefineConstants>INTROSPECTION_EXTENSIONS;REGEX_MATCHTIMEOUT</DefineConstants>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(TargetFramework)'=='netstandard1.3'">
-    <DefineConstants>REGEX_COMPILATION;INTROSPECTION_EXTENSIONS</DefineConstants>
+    <DefineConstants>REGEX_COMPILATION;INTROSPECTION_EXTENSIONS;REGEX_MATCHTIMEOUT</DefineConstants>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(TargetFramework)'=='netstandard1.6'">
-    <DefineConstants>REGEX_COMPILATION;INTROSPECTION_EXTENSIONS</DefineConstants>
+    <DefineConstants>REGEX_COMPILATION;INTROSPECTION_EXTENSIONS;REGEX_MATCHTIMEOUT</DefineConstants>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(TargetFramework)'=='net20'">
@@ -42,7 +42,7 @@
   </PropertyGroup>
   
   <PropertyGroup Condition="'$(TargetFramework)'=='netcoreapp2.0'">
-    <DefineConstants>REGEX_COMPILATION;INTROSPECTION_EXTENSIONS</DefineConstants>
+    <DefineConstants>REGEX_COMPILATION;INTROSPECTION_EXTENSIONS;REGEX_MATCHTIMEOUT</DefineConstants>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(TargetFramework)'=='net35'">
