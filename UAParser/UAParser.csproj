@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFrameworks>netstandard1.0;netstandard1.3;netstandard1.6;net20;netcoreapp2.0;net35;net40</TargetFrameworks>
+    <TargetFrameworks>netstandard1.0;netstandard1.3;netstandard1.6;net20;netcoreapp2.0;net35;net40;net45</TargetFrameworks>
     <PackageId>UAParser</PackageId>
     <Authors>enemaerke</Authors>
     <Title>User Agent Parser for .Net</Title>
@@ -51,6 +51,10 @@
 
   <PropertyGroup Condition="'$(TargetFramework)'=='net40'">
     <DefineConstants>REGEX_COMPILATION</DefineConstants>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(TargetFramework)'=='net45'">
+    <DefineConstants>REGEX_COMPILATION;REGEX_MATCHTIMEOUT</DefineConstants>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
