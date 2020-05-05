@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 15
-VisualStudioVersion = 15.0.26730.12
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.29806.167
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "UAParser.ConsoleApp", "UAParser.ConsoleApp\UAParser.ConsoleApp.csproj", "{280CF383-6A6E-487B-9D25-281C98F3A7C8}"
 EndProject
@@ -25,6 +25,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "UAParser", "UAParser\UAPars
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "UAParser.Tests", "UAParser.Tests\UAParser.Tests.csproj", "{754416BE-F962-4898-832A-739B0EF6C3CC}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "UAParser.Tests.Benchmark", "UAParser.Tests.Benchmark\UAParser.Tests.Benchmark.csproj", "{ECFBC2D2-1E86-4121-B001-9AE522E7F9FD}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -43,6 +45,10 @@ Global
 		{754416BE-F962-4898-832A-739B0EF6C3CC}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{754416BE-F962-4898-832A-739B0EF6C3CC}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{754416BE-F962-4898-832A-739B0EF6C3CC}.Release|Any CPU.Build.0 = Release|Any CPU
+		{ECFBC2D2-1E86-4121-B001-9AE522E7F9FD}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{ECFBC2D2-1E86-4121-B001-9AE522E7F9FD}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{ECFBC2D2-1E86-4121-B001-9AE522E7F9FD}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{ECFBC2D2-1E86-4121-B001-9AE522E7F9FD}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

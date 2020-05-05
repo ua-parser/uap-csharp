@@ -81,13 +81,12 @@ namespace UAParser.Tests
                     sb.AppendLine($"test case {(i + 1)}: {ex.Message}");
                 }
             }
+
             Assert.True(0 == sb.Length, "Failed tests: " + Environment.NewLine + sb);
         }
 
-        public List<TTestCase> GetTestCases<TTestCase>(
-      string resourceName,
-      string yamlNodeName,
-      Func<Dictionary<string, string>, TTestCase> testCaseFunction)
+        public List<TTestCase> GetTestCases<TTestCase>(string resourceName, string yamlNodeName,
+            Func<Dictionary<string, string>, TTestCase> testCaseFunction)
         {
             string yamlContent = this.GetTestResources(resourceName);
             YamlStream yaml = new YamlStream();
