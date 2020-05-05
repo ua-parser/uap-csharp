@@ -13,8 +13,6 @@ namespace UAParser.ConsoleApp
                 return;
             }
 
-            Console.ReadKey();
-
             var uaParser = Parser.GetDefault();
             string uaString;
             while ((uaString = Console.In.ReadLine()) != null)
@@ -22,7 +20,6 @@ namespace UAParser.ConsoleApp
                 uaString = uaString.Trim();
                 if (uaString.Length == 0)
                     continue;
-                Console.ReadKey();
                 var c = uaParser.Parse(uaString);
                 Console.WriteLine("Agent : {0}", c.UA);
                 Console.WriteLine("OS    : {0}", c.OS);
