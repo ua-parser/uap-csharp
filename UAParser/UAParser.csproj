@@ -7,7 +7,7 @@
     <Title>User Agent Parser for .Net</Title>
     <Description>Parsing useragent string. A .Net wrapper for the ua-parser library and its set of regular expressions</Description>
     <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
-    <Copyright>Copyright 2019</Copyright>
+    <Copyright>Copyright 2020</Copyright>
     <PackageTags>UAParser .Net UserAgent Parsing User Agent Parser</PackageTags>
     <AssemblyName>UAParser</AssemblyName>
     <RootNamespace>UAParser</RootNamespace>
