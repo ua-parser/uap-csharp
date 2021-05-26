@@ -42,9 +42,9 @@ Usage:
 
   ClientInfo c = uaParser.Parse(uaString);
 
-  Console.WriteLine(c.UserAgent.Family); // => "Mobile Safari"
-  Console.WriteLine(c.UserAgent.Major);  // => "5"
-  Console.WriteLine(c.UserAgent.Minor);  // => "1"
+  Console.WriteLine(c.UA.Family); // => "Mobile Safari"
+  Console.WriteLine(c.UA.Major);  // => "5"
+  Console.WriteLine(c.UA.Minor);  // => "1"
 
   Console.WriteLine(c.OS.Family);        // => "iOS"
   Console.WriteLine(c.OS.Major);         // => "5"
