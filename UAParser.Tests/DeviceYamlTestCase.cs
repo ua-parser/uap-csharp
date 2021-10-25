@@ -2,94 +2,95 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using UAParser.Implementations;
 using Xunit;
 
 namespace UAParser.Tests
 {
-  public class DeviceYamlTestCase : YamlTestCase
-  {
-    public static DeviceYamlTestCase ReadFromMap(Dictionary<string, string> map)
+    public class DeviceYamlTestCase : YamlTestCase
     {
-      DeviceYamlTestCase tc = new DeviceYamlTestCase()
-      {
-        UserAgent = map["user_agent_string"],
-        Family = map["family"],
+        public static DeviceYamlTestCase ReadFromMap(Dictionary<string, string> map)
+        {
+            DeviceYamlTestCase tc = new DeviceYamlTestCase()
+            {
+                UserAgent = map["user_agent_string"],
+                Family = map["family"],
 
-      };
-      return tc;
+            };
+            return tc;
+        }
+
+        public string Family { get; set; }
+
+        public override void Verify(ClientInfo clientInfo)
+        {
+            Assert.NotNull(clientInfo);
+            AssertMatch(Family, clientInfo.Device.Family, "Family");
+        }
     }
 
-    public string Family { get; set; }
-
-    public override void Verify(ClientInfo clientInfo)
+    public class OSYamlTestCase : YamlTestCase
     {
-      Assert.NotNull(clientInfo);
-      AssertMatch(Family,clientInfo.Device.Family,"Family");
-    }
-  }
+        public static OSYamlTestCase ReadFromMap(Dictionary<string, string> map)
+        {
+            OSYamlTestCase tc = new OSYamlTestCase()
+            {
+                UserAgent = map["user_agent_string"],
+                Family = map["family"],
+                Major = map["major"],
+                Minor = map["minor"],
+                Patch = map["patch"],
+                PatchMinor = map["patch_minor"]
+            };
+            return tc;
+        }
 
-  public class OSYamlTestCase : YamlTestCase
-  {
-    public static OSYamlTestCase ReadFromMap(Dictionary<string, string> map)
-    {
-      OSYamlTestCase tc = new OSYamlTestCase()
-      {
-        UserAgent = map["user_agent_string"],
-        Family = map["family"],
-        Major = map["major"],
-        Minor = map["minor"],
-        Patch = map["patch"],
-        PatchMinor = map["patch_minor"]
-      };
-      return tc;
-    }
+        public string Family { get; set; }
+        public string Major { get; set; }
+        public string Minor { get; set; }
+        public string Patch { get; set; }
+        public string PatchMinor { get; set; }
 
-    public string Family { get; set; }
-    public string Major { get; set; }
-    public string Minor { get; set; }
-    public string Patch { get; set; }
-    public string PatchMinor { get; set; }
+        public override void Verify(ClientInfo clientInfo)
+        {
+            Assert.NotNull(clientInfo);
+            AssertMatch(Family, clientInfo.OS.Family, "Family");
+            AssertMatch(Major, clientInfo.OS.Major, "Major");
+            AssertMatch(Minor, clientInfo.OS.Minor, "Minor");
+            AssertMatch(Patch, clientInfo.OS.Patch, "Patch");
+            AssertMatch(PatchMinor, clientInfo.OS.PatchMinor, "PatchMinor");
 
-    public override void Verify(ClientInfo clientInfo)
-    {
-      Assert.NotNull(clientInfo);
-      AssertMatch(Family, clientInfo.OS.Family, "Family");
-      AssertMatch(Major, clientInfo.OS.Major, "Major");
-      AssertMatch(Minor, clientInfo.OS.Minor, "Minor");
-      AssertMatch(Patch, clientInfo.OS.Patch, "Patch");
-      AssertMatch(PatchMinor, clientInfo.OS.PatchMinor, "PatchMinor");
-
-    }
-  }
-
-  public class UserAgentYamlTestCase : YamlTestCase
-  {
-    public static UserAgentYamlTestCase ReadFromMap(Dictionary<string, string> map)
-    {
-      UserAgentYamlTestCase tc = new UserAgentYamlTestCase()
-      {
-        UserAgent = map["user_agent_string"],
-        Family = map["family"],
-        Major = map["major"],
-        Minor = map["minor"],
-        Patch = map["patch"],
-      };
-      return tc;
+        }
     }
 
-    public string Family { get; set; }
-    public string Major { get; set; }
-    public string Minor { get; set; }
-    public string Patch { get; set; }
-
-    public override void Verify(ClientInfo clientInfo)
+    public class UserAgentYamlTestCase : YamlTestCase
     {
-      Assert.NotNull(clientInfo);
-      AssertMatch(Family, clientInfo.UA.Family, "Family");
-      AssertMatch(Major, clientInfo.UA.Major, "Major");
-      AssertMatch(Minor, clientInfo.UA.Minor, "Minor");
-      AssertMatch(Patch, clientInfo.UA.Patch, "Patch");
+        public static UserAgentYamlTestCase ReadFromMap(Dictionary<string, string> map)
+        {
+            UserAgentYamlTestCase tc = new UserAgentYamlTestCase()
+            {
+                UserAgent = map["user_agent_string"],
+                Family = map["family"],
+                Major = map["major"],
+                Minor = map["minor"],
+                Patch = map["patch"],
+            };
+            return tc;
+        }
 
+        public string Family { get; set; }
+        public string Major { get; set; }
+        public string Minor { get; set; }
+        public string Patch { get; set; }
+
+        public override void Verify(ClientInfo clientInfo)
+        {
+            Assert.NotNull(clientInfo);
+            AssertMatch(Family, clientInfo.UA.Family, "Family");
+            AssertMatch(Major, clientInfo.UA.Major, "Major");
+            AssertMatch(Minor, clientInfo.UA.Minor, "Minor");
+            AssertMatch(Patch, clientInfo.UA.Patch, "Patch");
+
+        }
     }
-  }
 }

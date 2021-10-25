@@ -106,7 +106,7 @@ namespace UAParser.Tests
               .Select(configMap =>
               {
                   if (!configMap.ContainsKey("js_ua")) //we deliberately skip tests with js-user agents
-                return testCaseFunction(configMap);
+                      return testCaseFunction(configMap);
                   return default(TTestCase);
               })
               .ToList();
