@@ -515,7 +515,7 @@ namespace UAParser
 
             private static readonly string[] _allReplacementTokens = new string[]
             {
-                "$1","$2","$3","$4","$5","$6","$7","$8","$91",
+                "$1","$2","$3","$4","$5","$6","$7","$8","$9",
             };
 
             private static Func<Match, IEnumerator<int>, string> ReplaceAll(string replacement)
