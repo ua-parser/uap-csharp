@@ -29,7 +29,7 @@ namespace UAParser.Tests
         public void can_utilize_regex_timeouts()
         {
             string yamlContent = this.GetTestResources("UAParser.Tests.Regexes.backtracking.yaml");
-            Parser parser = Parser.FromYaml(yamlContent, new ParserOptions()
+            Parser parser = Parser.FromYaml(yamlContent, new ParserOptions
             {
                 MatchTimeOut = TimeSpan.FromSeconds(1),
             });
