@@ -18,15 +18,17 @@ namespace UAParser.Tests
             }
             return list;
         }
+
         internal static Dictionary<string, string> ConvertToDictionary(this YamlMappingNode yamlNode)
         {
-          Dictionary<string, string> dic = new Dictionary<string, string>();
-          foreach (var key in yamlNode.Children.Keys)
-          {
-            dic[key.ToString()] = yamlNode.Children[key].ToString();
-          }
-          return dic;
+            Dictionary<string, string> dic = new Dictionary<string, string>();
+            foreach (var key in yamlNode.Children.Keys)
+            {
+                dic[key.ToString()] = yamlNode.Children[key].ToString();
+            }
+            return dic;
         }
+
         internal static string GetTestResources(this object self, string name)
         {
             using (Stream s = typeof(TestResourceTests).Assembly.GetManifestResourceStream(name))

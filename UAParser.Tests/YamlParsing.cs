@@ -43,15 +43,15 @@ namespace UAParser.Tests
             {
                 var configNode = kvPair.Value;
                 var valueDic = from node in configNode ?? Enumerable.Empty<YamlNode>()
-                    select node as YamlMappingNode
+                               select node as YamlMappingNode
                     into node
-                    where node != null
-                    select node.Children
-                        .Where(e => e.Key is YamlScalarNode && e.Value is YamlScalarNode)
-                        .GroupBy(e => e.Key.ToString(), e => e.Value.ToString(), StringComparer.OrdinalIgnoreCase)
-                        .ToDictionary(e => e.Key, e => e.Last(), StringComparer.OrdinalIgnoreCase)
+                               where node != null
+                               select node.Children
+                                   .Where(e => e.Key is YamlScalarNode && e.Value is YamlScalarNode)
+                                   .GroupBy(e => e.Key.ToString(), e => e.Value.ToString(), StringComparer.OrdinalIgnoreCase)
+                                   .ToDictionary(e => e.Key, e => e.Last(), StringComparer.OrdinalIgnoreCase)
                     into cm
-                    select cm;
+                               select cm;
 
                 string name = kvPair.Key;
                 var minimalLookupList = minimal.ReadMapping(name).ToList();
