@@ -18,6 +18,24 @@ namespace UAParser.Tests
         }
 
         [Fact]
+        public void parameterless_get_default_returns_cached_parser()
+        {
+            Parser first = Parser.GetDefault();
+            Parser second = Parser.GetDefault();
+
+            Assert.Same(first, second);
+        }
+
+        [Fact]
+        public void get_default_with_options_returns_a_new_parser()
+        {
+            Parser cachedDefault = Parser.GetDefault();
+            Parser configured = Parser.GetDefault(new ParserOptions());
+
+            Assert.NotSame(cachedDefault, configured);
+        }
+
+        [Fact]
         public void can_get_parser_from_input()
         {
             string yamlContent = this.GetTestResources("UAParser.Tests.Regexes.regexes.yaml");

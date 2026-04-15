@@ -34,7 +34,8 @@ Usage:
 
   string uaString = "Mozilla/5.0 (iPhone; CPU iPhone OS 5_1_1 like Mac OS X) AppleWebKit/534.46 (KHTML, like Gecko) Version/5.1 Mobile/9B206 Safari/7534.48.3";
 
-  // get a parser with the embedded regex patterns
+  // Create the parser once and reuse it. Parser construction parses the embedded
+  // yaml and builds regex structures, so avoid creating a parser per request.
   var uaParser = Parser.GetDefault();
 
   // get a parser using externally supplied yaml definitions
@@ -52,6 +53,17 @@ Usage:
 
   Console.WriteLine(c.Device.Family);    // => "iPhone"
 ```
+
+In ASP.NET Core, register the parser as a singleton and inject it where needed:
+
+```csharp
+using UAParser;
+
+builder.Services.AddSingleton(_ => Parser.GetDefault());
+```
+
+If you construct a parser with `Parser.FromYaml(...)` or `Parser.GetDefault(new ParserOptions { ... })`,
+cache and reuse that instance as well instead of creating it on each request.
 
 Authors:
 -------

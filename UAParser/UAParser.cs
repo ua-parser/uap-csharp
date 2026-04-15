@@ -287,6 +287,9 @@ namespace UAParser
         /// </summary>
         public const string Other = "Other";
 
+        private static readonly object DefaultParserLock = new object();
+        private static Parser _defaultParser;
+
         private readonly Func<string, OS> _osParser;
         private readonly Func<string, Device> _deviceParser;
         private readonly Func<string, UserAgent> _userAgentParser;
@@ -308,6 +311,10 @@ namespace UAParser
         /// <summary>
         /// Returns a <see cref="Parser"/> instance based on the regex definitions in a yaml string
         /// </summary>
+        /// <remarks>
+        /// Parser construction is relatively expensive because the yaml definitions must be parsed and
+        /// the regex structures must be built. Reuse the returned parser instead of creating one per request.
+        /// </remarks>
         /// <param name="yaml">a string containing yaml definitions of reg-ex</param>
         /// <param name="parserOptions">specifies the options for the parser</param>
         /// <returns>A <see cref="Parser"/> instance parsing user agent strings based on the regexes defined in the yaml string</returns>
@@ -318,11 +325,33 @@ namespace UAParser
 
         /// <summary>
         /// Returns a <see cref="Parser"/> instance based on the embedded regex definitions.
-        /// <remarks>The embedded regex definitions may be outdated. Consider passing in external yaml definitions using <see cref="Parser.FromYaml"/></remarks>
         /// </summary>
+        /// <remarks>
+        /// Parser construction is relatively expensive because the embedded yaml definitions must be parsed and
+        /// the regex structures must be built. Reuse the returned parser instead of creating one per request.
+        /// The parameterless overload returns a cached default parser for this reason. The embedded regex definitions
+        /// may be outdated, so consider passing in external yaml definitions using <see cref="Parser.FromYaml"/>.
+        /// </remarks>
         /// <param name="parserOptions">specifies the options for the parser</param>
         /// <returns></returns>
         public static Parser GetDefault(ParserOptions parserOptions = null)
+        {
+            if (parserOptions != null)
+                return CreateDefaultParser(parserOptions);
+
+            if (_defaultParser != null)
+                return _defaultParser;
+
+            lock (DefaultParserLock)
+            {
+                if (_defaultParser == null)
+                    _defaultParser = CreateDefaultParser(null);
+            }
+
+            return _defaultParser;
+        }
+
+        private static Parser CreateDefaultParser(ParserOptions parserOptions)
         {
             using (var stream = typeof(Parser)
 #if INTROSPECTION_EXTENSIONS
