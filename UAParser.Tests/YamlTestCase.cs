@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using UAParser.Implementations;
 using Xunit;
 
 namespace UAParser.Tests
