@@ -1,0 +1,118 @@
+name: Release
+
+# Manually triggered release pipeline:
+#   1. Increments the UAParser assembly version.
+#   2. Performs a full Release rebuild of the whole solution.
+#   3. Runs all unit tests (only if the build succeeded).
+#   4. Packs the NuGet package (only if the tests passed).
+#   5. Publishes the package as a GitHub release (only if packing succeeded).
+#
+# Steps run sequentially and each one only executes when the previous step
+# succeeded, so the build/test/pack/release stages are naturally gated.
+on:
+  workflow_dispatch:
+    inputs:
+      versionBump:
+        description: 'Which part of the version to increment'
+        type: choice
+        options:
+          - patch
+          - minor
+          - major
+        default: patch
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    # Windows is required: the solution multi-targets .NET Framework
+    # (net20/net35/net40/net45) and includes the old-style ConsoleApp project,
+    # which need full MSBuild and the .NET Framework targeting packs.
+    runs-on: windows-latest
+
+    steps:
+      - name: Checkout (with submodules)
+        uses: actions/checkout@v4
+        with:
+          # uap-core is a git submodule that provides the embedded regexes.yaml.
+          submodules: recursive
+          fetch-depth: 0
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Setup .NET SDK
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 9.0.x
+
+      - name: Setup MSBuild
+        uses: microsoft/setup-msbuild@v2
+
+      - name: Setup NuGet
+        uses: nuget/setup-nuget@v2
+
+      - name: Increment UAParser version
+        id: version
+        shell: pwsh
+        env:
+          BUMP: ${{ github.event.inputs.versionBump }}
+        run: |
+          $csproj = "UAParser/UAParser.csproj"
+          [xml]$xml = Get-Content -Path $csproj
+          $propertyGroup = $xml.Project.PropertyGroup | Where-Object { $_.Version } | Select-Object -First 1
+          if (-not $propertyGroup) { throw "Could not find a <Version> element in $csproj" }
+
+          $current = [version]$propertyGroup.Version
+          $major = $current.Major
+          $minor = $current.Minor
+          $patch = [math]::Max($current.Build, 0)
+
+          switch ($env:BUMP) {
+            'major' { $major++; $minor = 0; $patch = 0 }
+            'minor' { $minor++; $patch = 0 }
+            default { $patch++ }
+          }
+
+          $newVersion = "$major.$minor.$patch"
+          $assemblyVersion = "$newVersion.0"
+
+          $propertyGroup.Version = $newVersion
+          $propertyGroup.AssemblyVersion = $assemblyVersion
+          $propertyGroup.FileVersion = $assemblyVersion
+          $xml.Save((Resolve-Path $csproj))
+
+          Write-Host "Bumped UAParser version to $newVersion"
+          Add-Content -Path $env:GITHUB_OUTPUT -Value "version=$newVersion"
+
+      - name: Restore
+        run: |
+          nuget restore UAParser.sln
+          dotnet restore UAParser.sln
+
+      - name: Rebuild solution (Release)
+        run: msbuild UAParser.sln /t:Rebuild /p:Configuration=Release /m
+
+      - name: Run unit tests
+        run: dotnet test UAParser.Tests/UAParser.Tests.csproj --configuration Release --no-build --verbosity normal
+
+      - name: Pack NuGet package
+        run: dotnet pack UAParser/UAParser.csproj --configuration Release --no-build --output artifacts
+
+      - name: Commit version bump and create tag
+        shell: pwsh
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add UAParser/UAParser.csproj
+          git commit -m "ci: bump UAParser version to ${{ steps.version.outputs.version }} [skip ci]"
+          git tag "v${{ steps.version.outputs.version }}"
+          git push origin "HEAD:${{ github.ref_name }}"
+          git push origin "v${{ steps.version.outputs.version }}"
+
+      - name: Create GitHub release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: v${{ steps.version.outputs.version }}
+          name: UAParser v${{ steps.version.outputs.version }}
+          generate_release_notes: true
+          files: artifacts/*.nupkg
