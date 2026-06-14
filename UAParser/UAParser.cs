@@ -277,8 +277,39 @@ namespace UAParser
     }
 
     /// <summary>
-    /// Represents a parser of a user agent string
+    /// Represents a parser of a user agent string.
     /// </summary>
+    /// <remarks>
+    /// <para>
+    /// A <see cref="Parser"/> is built from a YAML document (either the embedded
+    /// <c>UAParser.regexes.yaml</c> resource or one supplied via <see cref="FromYaml"/>)
+    /// that follows the uap-core specification:
+    /// https://github.com/ua-parser/uap-core/blob/master/docs/specification.md
+    /// </para>
+    /// <para>
+    /// The document contains three top-level sequences &#8212; <c>user_agent_parsers</c>,
+    /// <c>os_parsers</c> and <c>device_parsers</c>. Each entry in a sequence is a
+    /// map of:
+    /// <list type="bullet">
+    ///   <item><c>regex</c> &#8211; the pattern to match against the UA string.</item>
+    ///   <item><c>regex_flag</c> &#8211; optional; currently only <c>"i"</c> (ignore case) is honoured.</item>
+    ///   <item>One or more <c>*_replacement</c> fields whose values may embed
+    ///         <c>$1</c>..<c>$9</c> back-references to the regex's capture groups.</item>
+    /// </list>
+    /// </para>
+    /// <para>
+    /// At construction time each YAML entry is compiled into a <see cref="Func{T, TResult}"/>
+    /// from <see cref="string"/> to a typed result. The full list of delegates for a given
+    /// category is then collapsed (via <see cref="CreateParser{T}"/>) into a single delegate
+    /// whose semantics are "evaluate each rule in YAML order and return the first non-null
+    /// result, or the <c>Other</c> default if no rule matched". The three resulting delegates
+    /// are stored in <c>_osParser</c>, <c>_deviceParser</c> and <c>_userAgentParser</c>.
+    /// </para>
+    /// <para>
+    /// At runtime <see cref="Parse"/> invokes the three delegates against the input
+    /// UA string and packages the results into a <see cref="ClientInfo"/>.
+    /// </para>
+    /// </remarks>
     public sealed class Parser
     {
         /// <summary>
@@ -294,6 +325,17 @@ namespace UAParser
         private readonly Func<string, Device> _deviceParser;
         private readonly Func<string, UserAgent> _userAgentParser;
 
+        /// <remarks>
+        /// For each of the three categories the constructor:
+        /// <list type="number">
+        ///   <item>Calls <see cref="MinimalYamlParser.ReadMapping"/> to obtain the sequence of rule dictionaries.</item>
+        ///   <item>Projects each dictionary through the matching <see cref="Config"/> selector,
+        ///         which builds the <see cref="Regex"/> and the typed result binder.</item>
+        ///   <item>Collapses the resulting delegates with <see cref="CreateParser{T}"/> so that
+        ///         the first matching rule wins; if none match, the supplied default
+        ///         (a record with <see cref="Other"/> as the family) is returned.</item>
+        /// </list>
+        /// </remarks>
         private Parser(MinimalYamlParser yamlParser, ParserOptions options)
         {
             var config = new Config(options ?? new ParserOptions());
@@ -364,8 +406,15 @@ namespace UAParser
         }
 
         /// <summary>
-        /// Parse a user agent string and obtain all client information
+        /// Parse a user agent string and obtain all client information.
         /// </summary>
+        /// <remarks>
+        /// Runs the OS, device and user-agent rule sets independently against
+        /// <paramref name="uaString"/>. Each rule set returns the result of the first
+        /// regex that matches (in YAML order); if no regex matches, a default value
+        /// whose family is <see cref="Other"/> is returned. The three results are
+        /// packaged into a <see cref="ClientInfo"/>.
+        /// </remarks>
         public ClientInfo Parse(string uaString)
         {
             var os     = ParseOS(uaString);
@@ -408,6 +457,12 @@ namespace UAParser
             }
 
             // ReSharper disable once InconsistentNaming
+            /// <summary>
+            /// Builds an OS rule from a single YAML map. <paramref name="indexer"/> is a
+            /// lookup into the rule's key/value pairs: it returns the value for keys such
+            /// as <c>regex</c>, <c>os_replacement</c> and <c>os_v1_replacement</c>..<c>os_v4_replacement</c>,
+            /// or <see langword="null"/> when the key is absent.
+            /// </summary>
             public Func<string, OS> OSSelector(Func<string, string> indexer)
             {
                 var regex = Regex(indexer, "OS");
@@ -419,6 +474,12 @@ namespace UAParser
                 return Parsers.OS(regex, os, v1, v2, v3, v4);
             }
 
+            /// <summary>
+            /// Builds a user-agent rule from a single YAML map. <paramref name="indexer"/> looks
+            /// up the rule's <c>regex</c>, <c>family_replacement</c> and
+            /// <c>v1_replacement</c>..<c>v3_replacement</c> values, returning
+            /// <see langword="null"/> for any key that is absent.
+            /// </summary>
             public Func<string, UserAgent> UserAgentSelector(Func<string, string> indexer)
             {
                 var regex = Regex(indexer, "User agent");
@@ -429,6 +490,12 @@ namespace UAParser
                 return Parsers.UserAgent(regex, family, v1, v2, v3);
             }
 
+            /// <summary>
+            /// Builds a device rule from a single YAML map. <paramref name="indexer"/> looks
+            /// up the rule's <c>regex</c>, <c>regex_flag</c>, <c>device_replacement</c>,
+            /// <c>brand_replacement</c> and <c>model_replacement</c> values, returning
+            /// <see langword="null"/> for any key that is absent.
+            /// </summary>
             public Func<string, Device> DeviceSelector(Func<string, string> indexer)
             {
                 var regex = Regex(indexer, "Device", indexer("regex_flag"));
@@ -438,6 +505,16 @@ namespace UAParser
                 return Parsers.Device(regex, device, brand, model);
             }
 
+            /// <summary>
+            /// Compiles the <c>regex</c> field of a YAML rule into a <see cref="System.Text.RegularExpressions.Regex"/>.
+            /// </summary>
+            /// <remarks>
+            /// Applies a couple of fix-ups required by the .NET regex engine &#8212; most notably,
+            /// rewriting the <c>\_</c> token that appears in some upstream patterns and is
+            /// not recognised by .NET. Honours <c>regex_flag: 'i'</c> for case-insensitivity
+            /// and the <c>ParserOptions.UseCompiledRegex</c> / <c>ParserOptions.MatchTimeOut</c>
+            /// options when the corresponding TFMs support them.
+            /// </remarks>
             private Regex Regex(Func<string, string> indexer, string key, string regexFlag = null)
             {
                 var pattern = indexer("regex");
@@ -476,13 +553,57 @@ namespace UAParser
             }
         }
 
+        /// <summary>
+        /// Turns a compiled <see cref="Regex"/> plus a set of replacement templates
+        /// (as read from one YAML rule) into a <c>Func&lt;string, T&gt;</c> that maps a
+        /// UA string to a typed result, or <see langword="null"/> when the regex does
+        /// not match.
+        /// </summary>
+        /// <remarks>
+        /// <para>
+        /// Each replacement template is a string that may contain <c>$1</c>..<c>$9</c>
+        /// tokens referring to capture groups of the matched <see cref="Regex"/>.
+        /// Two replacement strategies are used:
+        /// <list type="bullet">
+        ///   <item><c>Replace(string, string)</c> &#8211; substitutes one specific token
+        ///         (e.g. <c>$2</c>) with the corresponding group's value. Used by
+        ///         <see cref="OS"/> and <see cref="UserAgent"/>, where each output field
+        ///         maps to a fixed capture-group position.</item>
+        ///   <item><c>ReplaceAll(string)</c> &#8211; substitutes every <c>$1</c>..<c>$9</c>
+        ///         token it finds. Used by <see cref="Device"/>, whose family/brand/model
+        ///         templates may freely combine multiple capture groups.</item>
+        /// </list>
+        /// </para>
+        /// <para>
+        /// The binders are composed using LINQ query syntax over
+        /// <c>Func&lt;Match, IEnumerator&lt;int&gt;, T&gt;</c>, enabled by
+        /// <see cref="RegexBinderBuilder.SelectMany{T1, T2, TResult}"/>. The
+        /// <c>IEnumerator&lt;int&gt;</c> is a positional counter generated by
+        /// <c>Generate</c> that hands out 1, 2, 3 &#8230; so that the <c>n</c>th
+        /// <c>from</c> clause defaults to capture group <c>n</c> when its replacement
+        /// template is <see langword="null"/>.
+        /// </para>
+        /// </remarks>
         private static class Parsers
         {
             // ReSharper disable once InconsistentNaming
+            /// <remarks>
+            /// The OS rule format is positional and slightly irregular: the meaning of
+            /// <c>$1</c>..<c>$5</c> depends on which of the <c>os_v*_replacement</c> fields are
+            /// hard-coded to literal back-references. Three layouts must be supported:
+            /// <list type="number">
+            ///   <item><c>v1_replacement == "$1"</c> and <c>v2_replacement == "$2"</c> &#8594;
+            ///         groups map directly: v1=$1, v2=$2, v3=$3, v4=$4, family=$5.</item>
+            ///   <item><c>v1_replacement == "$1"</c> only &#8594; v1=$1, family=$2, v2=$3, v3=$4, v4=$5.</item>
+            ///   <item>Otherwise &#8594; family=$1, v1=$2, v2=$3, v3=$4, v4=$5 (the common case).</item>
+            /// </list>
+            /// This behaviour is locked in by unit tests; do not reorder the LINQ clauses
+            /// without updating them.
+            /// </remarks>
             public static Func<string, OS> OS(Regex regex, string osReplacement, string v1Replacement, string v2Replacement, string v3Replacement, string v4Replacement)
             {
                 // For variable replacements to be consistent the order of the linq statements are important ($1
-                // is only available to the first 'from X in Replace(..)' and so forth) so a a bit of conditional
+                // is only available to the first 'from X in Replace(..)' and so forth) so a bit of conditional
                 // is required to get the creations to work. This is backed by unit tests
                 if (v1Replacement == "$1")
                 {
@@ -499,6 +620,16 @@ namespace UAParser
                     return Create(regex, from v1 in Replace(v1Replacement, "$1")
                         from family in Replace(osReplacement, "$2")
                         from v2 in Replace(v2Replacement, "$3")
+                        from v3 in Replace(v3Replacement, "$4")
+                        from v4 in Replace(v4Replacement, "$5")
+                        select new OS(family, v1, v2, v3, v4));
+                }
+
+                if (v2Replacement == "$1")
+                {
+                    return Create(regex, from v2 in Replace(v2Replacement, "$1")
+                        from family in Replace(osReplacement, "$2")
+                        from v1 in Replace(v1Replacement, "$3")
                         from v3 in Replace(v3Replacement, "$4")
                         from v4 in Replace(v4Replacement, "$5")
                         select new OS(family, v1, v2, v3, v4));
@@ -537,7 +668,7 @@ namespace UAParser
             private static Func<Match, IEnumerator<int>, string> Replace(
                 string replacement, string token)
             {
-                return replacement != null && replacement.Contains(token)
+                return replacement != null && !string.IsNullOrEmpty(token) && replacement.Contains(token)
                      ? Select(s => s != null ? replacement.ReplaceFirstOccurence(token, s) : replacement)
                      : Replace(replacement);
             }
@@ -678,6 +809,23 @@ namespace UAParser
     /// dependency on large Yaml parsing lib. Note that a unittest ensures compatibility
     /// by ensuring regexes and properties are read similar to using the full yaml lib
     /// </summary>
+    /// <remarks>
+    /// The recognised subset is:
+    /// <code>
+    /// mapping_name:
+    ///   - key1: 'value'
+    ///     key2: "value"
+    ///     key3: bareValue
+    ///   - key1: ...
+    /// other_mapping:
+    ///   - ...
+    /// </code>
+    /// Lines that are blank or start with <c>#</c> are ignored. A line whose first
+    /// character is non-whitespace starts a new top-level <see cref="Mapping"/>; a
+    /// line whose first non-whitespace character is <c>-</c> starts a new entry in
+    /// the current mapping; subsequent indented <c>key: value</c> lines are added
+    /// to that entry.
+    /// </remarks>
     internal class MinimalYamlParser
     {
         internal class Mapping
@@ -709,8 +857,6 @@ namespace UAParser
         {
             ReadIntoMappingModel(yamlString);
         }
-
-        internal IDictionary<string, Mapping> Mappings => _mappings;
 
         private void ReadIntoMappingModel(string yamlInputString)
         {

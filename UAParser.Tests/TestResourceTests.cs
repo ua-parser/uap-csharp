@@ -4,6 +4,7 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using Xunit;
+using Xunit.Abstractions;
 using Xunit.Sdk;
 using YamlDotNet.RepresentationModel;
 
@@ -11,6 +12,13 @@ namespace UAParser.Tests
 {
     public class TestResourceTests
     {
+        private readonly ITestOutputHelper _outputHelper;
+
+        public TestResourceTests(ITestOutputHelper outputHelper)
+        {
+            _outputHelper = outputHelper;
+        }
+
         [Fact]
         public void can_run_device_tests()
         {
@@ -47,6 +55,28 @@ namespace UAParser.Tests
             RunTests("UAParser.Tests.TestResources.test_os.yaml", OSYamlTestCase.ReadFromMap);
         }
 
+        [Fact]
+        public void test_harness()
+        {
+            // a test harness in place for debugging specific issues
+            string yaml = @"
+user_agent_parsers:
+os_parsers:
+  - regex: 'CFNetwork/.{0,100} Darwin/22\.([0-5])\.\d+'
+    os_replacement: 'iOS'
+    os_v1_replacement: '16'
+    os_v2_replacement: '$1'
+device_parsers:
+";
+            string userAgentString = "App/0 CFNetwork/1390 Darwin/22.0.0";
+
+            var parser = Parser.FromYaml(yaml);
+            var clientInfo = parser.Parse(userAgentString);
+            _outputHelper.WriteLine($"UserAgent: {clientInfo.UserAgent}");
+                _outputHelper.WriteLine($"OS: {clientInfo.OS}");
+                _outputHelper.WriteLine($"Device: {clientInfo.Device}");
+        }
+
         internal void RunTests<TTestCase>(
           string resourceName,
           Func<Dictionary<string, string>, TTestCase> testCaseFunction) where TTestCase : YamlTestCase
@@ -81,7 +111,7 @@ namespace UAParser.Tests
                     sb.AppendLine($"test case {(i + 1)}: {ex.Message}");
                 }
             }
-            Assert.True(0 == sb.Length, "Failed tests: " + Environment.NewLine + sb);
+            Assert.True(0 == sb.Length, $"Failed tests: {Environment.NewLine}{sb}");
         }
 
         public List<TTestCase> GetTestCases<TTestCase>(

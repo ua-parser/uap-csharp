@@ -22,7 +22,8 @@ namespace UAParser.Tests
                     return;
             }
 
-            Assert.True(expected.Equals(actual), type + " did not match. (expected:" + expected + " actual:" + actual + ")  in " + UserAgent);
+            Assert.True(expected.Equals(actual),
+                $"{type} did not match. (expected:{expected} actual:{actual})  in {UserAgent}");
         }
     }
 }
